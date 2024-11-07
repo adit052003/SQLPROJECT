@@ -28,5 +28,4 @@ def test_db():
     with db.cursor() as cursor:
         sql = "SELECT * FROM test"
         cursor.execute(sql)
-        result = cursor.fetchone()
-        print("Result:", result)
+        return cursor.fetchone()

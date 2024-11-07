@@ -5,5 +5,4 @@ blueprint = Blueprint("views", __name__)
 
 @blueprint.route("/")
 def home():
-    test_db()
-    return render_template("index.html")
+    return render_template("index.html", sql_result = test_db())
