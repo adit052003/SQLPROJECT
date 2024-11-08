@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Resource Sharing</title>
+</head>
+<body>
+    <h1>Welcome to Study Resource Sharing</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('list_resources') }}">View Resources</a></li>
+            <li><a href="{{ url_for('add_resource') }}">Add Resource</a></li>
+            <li><a href="{{ url_for('list_courses') }}">View Courses</a></li>
+            <li><a href="{{ url_for('add_course') }}">Add Course</a></li>
+            <li><a href="{{ url_for('reports') }}">Reports</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
