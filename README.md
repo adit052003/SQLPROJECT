@@ -26,6 +26,7 @@ MYSQL_HOST = 'localhost'
 MYSQL_DB = 'stoodle'
 MYSQL_USER = '[USERNAME]'
 MYSQL_PASSWORD = '[PASSWORD]'
+SECRET_KEY = '[SECRET_KEY]'
 ```
 
 ### Running

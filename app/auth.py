@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from .db_manager import fetchone, executeCommit
 
@@ -16,8 +16,11 @@ def signup_post():
     student_id = request.form.get('student_id')
     password = request.form.get('password')
     
-    user = fetchone("SELECT * FROM Users WHERE `Email`=%s OR ID=%s", (email,student_id))
-    if user: return redirect(url_for('auth.signup'))
+    user = fetchone("SELECT `Email`, `ID` FROM Users WHERE `Email`=%s OR ID=%s", (email,student_id))
+    if user: 
+        if user[0] == email: flash("Email address already registered")
+        if str(user[1]) == student_id: flash("Student ID already registered")
+        return redirect(url_for('auth.signup'))
     
     result = executeCommit(
         "INSERT INTO Users (`ID`, `FirstName`, `LastName`, `Email`, `Password`) VALUES (%s, %s, %s, %s, %s)", 
