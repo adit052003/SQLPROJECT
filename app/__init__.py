@@ -4,7 +4,7 @@ from app import views, auth
 from .db_manager import initialize_db
 from .models.user import User
 
-CONFIG_FILE = "../application.cfg"
+CONFIG_FILE = "../config.py"
 
 def create_app():
     app = Flask(__name__)

@@ -15,4 +15,5 @@ class User(UserMixin):
         where = ' OR '.join(map(lambda k: f"`{k}` = %s", keys))
         print(sql + where)
         result = fetchone(sql + where, values)
+        if not result: return None
         return User(*result)
