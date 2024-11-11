@@ -22,10 +22,16 @@ def get_db():
             db = flask.current_app.config['MYSQL_DB']
         )
     return db
-        
-def test_db():
+
+def executeCommit(sql, args):
     db = get_db()
     with db.cursor() as cursor:
-        sql = "SELECT * FROM test"
-        cursor.execute(sql)
+        result = cursor.execute(sql, args)
+    db.commit()
+    return result
+
+def fetchone(sql, args):
+    with get_db().cursor() as cursor:
+        cursor.execute(sql, args)
         return cursor.fetchone()
+    
