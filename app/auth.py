@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask_login import login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from .db_manager import fetchone, executeCommit
+from .models.user import User
 
 auth = Blueprint("auth", __name__)
 
@@ -16,10 +18,10 @@ def signup_post():
     student_id = request.form.get('student_id')
     password = request.form.get('password')
     
-    user = fetchone("SELECT `Email`, `ID` FROM Users WHERE `Email`=%s OR ID=%s", (email,student_id))
+    user = User.findMatchOR(('Email', 'ID'), (email, student_id)) #fetchone("SELECT `Email`, `ID` FROM Users WHERE `Email`=%s OR ID=%s", (email,student_id))
     if user: 
-        if user[0] == email: flash("Email address already registered")
-        if str(user[1]) == student_id: flash("Student ID already registered")
+        if user.email.lower() == email.lower(): flash("Email address already registered")
+        if str(user.id) == student_id: flash("Student ID already registered")
         return redirect(url_for('auth.signup'))
     
     result = executeCommit(
@@ -33,3 +35,21 @@ def signup_post():
 @auth.route("/login")
 def login():
     return render_template("login.html")
+
+@auth.route("/login", methods=['POST'])
+def login_post(): 
+    email = request.form.get('email')
+    password = request.form.get('password')
+    user = User.findMatchOR(('Email',), (email,)) #fetchone("SELECT `Password` FROM Users WHERE `Email`=%s", (email,))
+    if not user or not check_password_hash(user.password, password):
+        flash('Please check your login details and try again.')
+        return redirect(url_for('auth.login'))
+    
+    print("Logging in:", login_user(user))
+    return redirect(url_for('views.dashboard'))
+
+@auth.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('views.home'))
