@@ -3,49 +3,33 @@
 {% block title %} Sign Up {% endblock %}
 
 {% block content %}
-<div class="column is-4 is-offset-4">
-    <h3 class="title">Sign Up</h3>
-    <div class="box">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-                {{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login page</a>.
-            </div>
-        {% endif %}
-        {% endwith %}
-        <form method="POST" action="/signup">
-            <div class="field">
-                <div class="control">
-                    <input type="text" class="input is-large" name="first_name" placeholder="First Name" autofocus="">
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="control">
-                    <input type="text" class="input is-large" name="last_name" placeholder="Last Name" autofocus="">
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="control">
-                    <input type="email" class="input is-large" name="email" placeholder="Email" autofocus="">
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="control">
-                    <input type="number" class="input is-large" name="student_id" placeholder="Student ID" autofocus="">
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="control">
-                    <input type="password" class="input is-large" name="password" placeholder="Password">
-                </div>
-            </div>
-
-            <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
-        </form>
-    </div>
+<!-- Styled by ChatGPT 12-11-2024. Style has been modified. -->
+<div class="container mt-3 col-md-5 col-xl-4 mx-auto">
+    <h3 class="text-center mb-3">Sign Up</h3>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info text-center" role="alert">
+            {{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}" class="alert-link">login page</a>.
+        </div>
+    {% endif %}
+    {% endwith %}
+    <form method="POST" action="/signup" class="border p-4 rounded shadow-sm bg-light">
+        <div class="mb-3">
+            <input type="text" name="first_name" placeholder="First Name" class="form-control" required autofocus>
+        </div>
+        <div class="mb-3">
+            <input type="text" name="last_name" placeholder="Last Name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <input type="email" name="email" placeholder="Email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <input type="number" name="student_id" placeholder="Student ID" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <input type="password" name="password" placeholder="Password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+    </form>
 </div>
 {% endblock %}
