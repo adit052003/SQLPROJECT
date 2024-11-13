@@ -1,0 +1,18 @@
+.min-h-100 {
+    min-height: 100%;
+}
+
+.course-card {
+    position: relative; overflow: hidden; border-radius: 0.3rem;
+}
+
+.course-img {
+    aspect-ratio: 3/2; object-fit: cover;
+}
+
+.img-text {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.6); 
+    color: white;
+    padding: 2px 5px;
+}
