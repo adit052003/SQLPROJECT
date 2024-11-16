@@ -5,5 +5,26 @@
 {% block content %}
 <div class="container">
     <h1 class="display-4">Welcome, {{ name }}!</h1>
+    
+    <hr>
+
+    <!-- Courses Section -->
+    <div class="courses-section mt-4">
+        <h2>Your Courses</h2>
+        
+        {% if courses %}
+            <div class="list-group">
+                {% for course in courses %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <h5 class="mb-1">{{ course.Title }} ({{ course.Code }})</h5>
+                        <p class="mb-1">Joined on: {{ course.JoinDate }}</p>
+                        <small>Last viewed: {{ course.ViewDate }}</small>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">You haven't joined any courses yet.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -34,4 +34,11 @@ def fetchone(sql, args):
     with get_db().cursor() as cursor:
         cursor.execute(sql, args)
         return cursor.fetchone()
+
+def fetchall(sql, args=()):
+    """Fetch all rows from a SQL query."""
+    with get_db().cursor() as cursor:
+        cursor.execute(sql, args)
+        return cursor.fetchall()
+
     
