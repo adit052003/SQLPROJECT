@@ -42,3 +42,9 @@ def fetchall(sql, args=()):
         return cursor.fetchall()
 
     
+def fetchall(sql, args=None):
+    with get_db().cursor() as cursor:
+        cursor.execute(sql, args)
+        return cursor.fetchall()
+        
+    
