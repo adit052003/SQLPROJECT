@@ -7,3 +7,8 @@ api = Blueprint("api", __name__)
 def course_list():
     courses = Course.fetchAllRatings()
     return jsonify(courses=[c.serialize() for c in courses])
+
+@api.route("/api/joined_courses", methods=['POST'])
+def course_list():
+    courses = Course.fetchAllRatings()
+    return jsonify(courses=[c.serialize() for c in courses])

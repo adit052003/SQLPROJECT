@@ -18,7 +18,7 @@ def signup_post():
     student_id = request.form.get('student_id')
     password = request.form.get('password')
     
-    user = User.findMatchOR(('Email', 'ID'), (email, student_id)) #fetchone("SELECT `Email`, `ID` FROM Users WHERE `Email`=%s OR ID=%s", (email,student_id))
+    user = User.findMatchOR(('Email', 'ID'), (email, student_id))
     if user: 
         if user.email.lower() == email.lower(): flash("Email address already registered")
         if str(user.id) == student_id: flash("Student ID already registered")
