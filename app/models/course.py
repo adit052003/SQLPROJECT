@@ -42,6 +42,16 @@ class Course:
         result = fetchall(sql)
         if not result: return None
         return [Course(*row) for row in result]
+    def fetchJoinedCourses(user_id):
+        sql = """
+        SELECT Courses.ID, Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate
+        FROM JoinedCourses
+        JOIN Courses ON JoinedCourses.CourseID = Courses.ID
+        WHERE JoinedCourses.UserID = %s
+        ORDER BY JoinedCourses.JoinDate DESC
+        """
+        courses = fetchall(sql, (user_id,))
+        return [Course(*c) for c in courses]
     
     def serialize(self):
         return {
