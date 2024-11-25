@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect
 from flask_login import login_required, current_user
-from app.db_manager import executeCommit
+from .db_manager import executeCommit
+from .models.course import Course
 
 blueprint = Blueprint("views", __name__)
 
@@ -33,3 +34,9 @@ def create_course():
         return redirect("/dashboard")
     return render_template("add_course.html")
 
+@blueprint.route("/course/<id>")
+@login_required
+def view_course(id=None):
+    course = Course.findMatchOR(('ID',), (id,))
+    if course == None: return "Course does not exist"
+    return render_template("view_course.html", course=course)
