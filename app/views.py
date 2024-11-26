@@ -15,7 +15,7 @@ def home():
 def dashboard():
      # SQL query to fetch the courses the user has joined
     sql = """
-    SELECT Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate
+    SELECT Courses.ID, Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate
     FROM JoinedCourses
     JOIN Courses ON JoinedCourses.CourseID = Courses.ID
     WHERE JoinedCourses.UserID = %s
