@@ -2,15 +2,27 @@ from ..db_manager import fetchall, fetchone
 
 class Course:
     
-    def __init__(self, id, title, code, rating=None, registrations=None):
+    def __init__(self, id, title, code, description, rating=None, registrations=None):
         self.id = id
         self.title = title
+        self.description = description
         self.code = code
         self.rating = rating
         self.registrations = registrations
         
+    def getParticipants(self):
+        sql = '''
+        SELECT COUNT(*) FROM JoinedCourses
+        WHERE CourseID = %s
+        '''
+        return fetchone(sql, (self.id,))[0]
+    
+    def getRating(self):
+        sql = '''SELECT AVG(Rating) From CourseRatings WHERE CourseID = %s'''
+        return fetchone(sql, (self.id,))[0]
+        
     def findMatchOR(keys, values):
-        sql = "SELECT `Id`, `Title`, `Code` FROM Courses WHERE "
+        sql = "SELECT `Id`, `Title`, `Code`, `Description` FROM Courses WHERE "
         where = ' OR '.join(map(lambda k: f"`{k}` = %s", keys))
         print(sql + where)
         result = fetchone(sql + where, values)
@@ -19,7 +31,7 @@ class Course:
 
     def fetchAll():
         sql = """
-        SELECT `ID`, `Title`, `Code` FROM Courses;
+        SELECT `ID`, `Title`, `Code`, `Description` FROM Courses;
         """
         result = fetchall(sql)
         if not result: return None
@@ -27,7 +39,7 @@ class Course:
         
     def fetchAllRatings():
         sql = """
-        SELECT C.ID, C.Title, Code, Rating, IFNULL(Registrations, 0) FROM Courses C
+        SELECT C.ID, C.Title, Code, `Description`, Rating, IFNULL(Registrations, 0) FROM Courses C
         LEFT JOIN (
             SELECT CourseID, AVG(Rating) AS Rating
             FROM CourseRatings
@@ -42,9 +54,10 @@ class Course:
         result = fetchall(sql)
         if not result: return None
         return [Course(*row) for row in result]
+    
     def fetchJoinedCourses(user_id):
         sql = """
-        SELECT Courses.ID, Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate
+        SELECT Courses.ID, Courses.Title, Courses.Code, Course.Description, JoinedCourses.JoinDate, JoinedCourses.ViewDate
         FROM JoinedCourses
         JOIN Courses ON JoinedCourses.CourseID = Courses.ID
         WHERE JoinedCourses.UserID = %s

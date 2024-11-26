@@ -3,5 +3,53 @@
 {% block title %}{{ course.title }}{% endblock %}
 
 {% block content %}
-<h1>Welcome to {{ course.title }}</h1>
+<div class="container">
+    <div class="mt-2 mb-2 d-flex justify-content-between align-items-center">
+        <h3>{{ course.title }}</h3>
+        {% if not joined %}
+        <button class="btn btn-primary" onclick="joinCourse()">Join Course</button>
+        {% else %}
+        <a class="btn btn-primary" href="{{ url_for('views.edit_course', course_id=course.id) }}">Edit Course</a>
+        {% endif %}
+    </div>
+
+    <section class="h-100 d-flex flex-column">
+        <nav class="navbar navbar-expand-lg bg-secondary" style="height: 40px;">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="navbarSupportedContent" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item"><button class="nav-link">About</button></li>
+                            <li class="nav-item"><button class="nav-link">Main</button></li>
+                            <li class="nav-item"><button class="nav-link">Unit 1</button></li>
+                            <li class="nav-item"><button class="nav-link">Unit 2</button></li>
+                            <li class="nav-item"><button class="nav-link">Unit 3</button></li>
+                        </ul>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {% block course_content %}{% endblock %}
+    </section>
+</div>
+
+<script>
+    function joinCourse() {
+        fetch('/api/join_course', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: {{ current_user.id }},
+                course_id: {{ course.id }}
+            })
+        })
+        .then(response => { if (response.ok) { location.reload(); } else { alert("Could not join course.");} })
+    }
+</script>
 {% endblock %}

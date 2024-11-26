@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-3 col-md-5 col-xl-4 mx-auto">
+    <h1>Edit</h1>
+    <div class="mb-3">
+        <input type="text" id="course_title" placeholder="Course Title" class="form-control" value="{{ course.title }}" autofocus>
+    </div>
+    <div class="mb-3">
+        <input type="text" id="course_code" placeholder="Course Code" class="form-control" value="{{ course.code }}" autofocus>
+    </div>
+    <div class="mb-3">
+        <textarea id="course_description" class="form-control" placeholder="Description">{{ course.description if course.description else "" }}</textarea>
+    </div>
+    <button class="btn btn-primary" onclick="SaveChanges()">Save</button>
+    <a class="btn btn-secondary" href="{{ url_for('views.view_course', course_id=course.id) }}">Return To Course</a>
+</div>
+<script>
+    function SaveChanges() {
+        title = document.getElementById('course_title').value;
+        code = document.getElementById('course_code').value;
+        description = document.getElementById('course_description').value;
+
+        fetch('/api/edit_course', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                course_id: {{ course.id }},
+                title: title,
+                code: code,
+                description: description
+            })
+        })
+        .then(response => { if (response.ok) { location.reload(); } else { alert("Could not edit course.");} })
+    }
+</script>
+{% endblock %}

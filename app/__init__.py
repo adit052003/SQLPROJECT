@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
 from app import views, auth, api
-from .db_manager import initialize_db
 from .models.user import User
 
 CONFIG_FILE = "../config.py"
@@ -12,7 +11,6 @@ def create_app():
     app.register_blueprint(auth.auth)
     app.register_blueprint(api.api)
     app.config.from_pyfile(CONFIG_FILE)
-    initialize_db(app)
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

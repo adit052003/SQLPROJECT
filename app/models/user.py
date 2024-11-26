@@ -17,3 +17,10 @@ class User(UserMixin):
         result = fetchone(sql + where, values)
         if not result: return None
         return User(*result)
+    
+    def hasJoinedCourse(self, courseID):
+        sql = '''
+        SELECT * FROM JoinedCourses
+        WHERE UserID = %s AND CourseID = %s
+        '''
+        return bool(fetchone(sql, (self.id, courseID)))

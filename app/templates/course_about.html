@@ -1,0 +1,48 @@
+{% extends "view_course.html" %}
+
+{% block course_content %}
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">{{ course.code }}<br>{{ participants }} {{ "Participants" if participants != 1 else "Participant"}}</p>
+                <p class="card-text">{{ course.description if course.description else "" }}</p>
+                {% if rating %}
+                <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
+                    {{ rating }} ⭐
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {% if sessions %}
+        {% for session in sessions %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ ['Spring', 'Summer', 'Fall'][session.start_date.month // 4] }} 
+                    {{ session.start_date.year }}
+                    {{ session.title if session.title else "" }}
+                </h5>
+                <p class="card-subtitle mb-2 text-muted">
+                    {{ session.professor_first_name }} {{ session.professor_last_name }}<br>
+                    {{ session.classroom }}<br>
+                    {{ session.time }}<br>
+                </p>
+                <p class="card-text">{{ session.description if session.description else "" }}</p>
+                <div class="d-flex justify-content-end">
+                    {% if session.rating %}
+                    <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
+                       {{  '%g' % (session.rating/2) }} ⭐
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
