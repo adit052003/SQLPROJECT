@@ -74,3 +74,9 @@ def render_about_page(course):
         joined=current_user.hasJoinedCourse(course.id),
         sessions = sessions
     )
+
+@blueprint.route("/course/<course_id>/edit")
+def edit_course(course_id=None):
+    course = Course.findMatchOR(('ID',), (course_id,))
+    if course == None: return "Course does not exist"
+    return render_template("edit_course.html", course=course)
