@@ -7,7 +7,7 @@
     <div class="mt-2 mb-2 d-flex justify-content-between align-items-center">
         <h3>{{ course.title }}</h3>
         {% if not joined %}
-        <button class="btn btn-primary">Join Course</button>
+        <button class="btn btn-primary" onclick="joinCourse()">Join Course</button>
         {% else %}
         <button class="btn btn-primary">Edit Course</button>
         {% endif %}
@@ -36,4 +36,20 @@
         {% block course_content %}{% endblock %}
     </section>
 </div>
+
+<script>
+    function joinCourse() {
+        fetch('/api/join_course', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: {{ current_user.id }},
+                course_id: {{ course.id }}
+            })
+        })
+        .then(response => { if (response.ok) { location.reload(); } else { alert("Could not join course.");} })
+    }
+</script>
 {% endblock %}
