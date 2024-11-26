@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, flash, render_t
 from flask_login import login_required, current_user
 from .db_manager import fetchall, executeCommit, fetchone
 from .models.course import Course
+from .models.course_session import CourseSession
 
 blueprint = Blueprint("views", __name__)
 
@@ -52,9 +53,24 @@ def create_course():
         return redirect("/dashboard")
     return render_template("add_course.html")
 
-@blueprint.route("/course/<id>")
+@blueprint.route("/course/<course_id>")
+@blueprint.route("/course/<course_id>/<page_id>")
 @login_required
-def view_course(id=None):
-    course = Course.findMatchOR(('ID',), (id,))
+def view_course(course_id=None, page_id=None):
+    course = Course.findMatchOR(('ID',), (course_id,))
     if course == None: return "Course does not exist"
-    return render_template("view_course.html", course=course)
+    if page_id == None: return render_about_page(course)
+    return render_template("view_course.html", course=course, page_id=page_id, joined=current_user.hasJoinedCourse(course_id))
+
+def render_about_page(course):
+    participants = course.getParticipants()
+    rating = course.getRating() or 0
+    sessions = CourseSession.findCourseSessions(course.id)
+    return render_template(
+        "course_about.html", 
+        course=course, 
+        participants=participants, 
+        rating=f"{rating/2}".rstrip('.0'), 
+        joined=current_user.hasJoinedCourse(course.id),
+        sessions = sessions
+    )

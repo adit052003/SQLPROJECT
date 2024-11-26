@@ -19,8 +19,8 @@ CREATE TABLE Professors (
 CREATE TABLE Courses (
 	ID INTEGER PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(255) NOT NULL,
-    Code VARCHAR(255)
-    Description text
+    Code VARCHAR(255),
+    Description TEXT
 );
 
 CREATE TABLE Sessions (
@@ -32,6 +32,7 @@ CREATE TABLE Sessions (
     Classroom VARCHAR(64),
     Time VARCHAR(64),
     Title VARCHAR(4),
+    Description TEXT,
     FOREIGN KEY (CourseID) REFERENCES Courses(ID)
 		ON UPDATE CASCADE
         ON DELETE CASCADE,
@@ -91,7 +92,7 @@ INSERT INTO Professors (FirstName, LastName) VALUES ("Andrew", "Park");
 INSERT INTO Professors (FirstName, LastName) VALUES ("Ryan", "Kopke");
 INSERT INTO Professors (FirstName, LastName) VALUES ("Chris", "Morissey");
 
-INSERT INTO Courses (Title, Code) VALUES ("Introduction to Database Management Systems", "CMPT 339");
+INSERT INTO Courses (Title, Code, Description) VALUES ("Introduction to Database Management Systems", "CMPT 339", "Learn about Databases");
 INSERT INTO Courses (Title, Code) VALUES ("Life and Letters of Paul", "RELS 352");
 INSERT INTO Courses (Title, Code) VALUES ("Introduction to Logic", "PHIL 103");
 INSERT INTO Courses (Title, Code) VALUES ("Articulatory Phonetics", "LING 230");
@@ -99,7 +100,7 @@ INSERT INTO Courses (Title, Code) VALUES ("Modern Algebra", "MATH 450");
 INSERT INTO Courses (Title, Code) VALUES ("Introduction to Linguistics", "LING 101");
 INSERT INTO Courses (Title, Code) VALUES ("Human Flourishing", "FNDN 102");
 
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (1, 1, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM");
+INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time, Description) VALUES (1, 1, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM", "Teaches very well");
 INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (1, 1, STR_TO_DATE('September 4 2022', '%M %d %Y'), STR_TO_DATE('December 9 2022', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM");
 INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (4, 2, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "CANIL 209", "TR 12:00 - 1:15 PM / F 1:30 - 2:45 PM");
 INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (3, 3, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "RNT 121", "TR 1:30 - 2:45 AM");
