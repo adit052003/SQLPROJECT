@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
     const joinedCourseList = document.getElementById("joined-course-list");
-    const searchBar = document.getElementById("search-bar-joined");
 
     // Fetch joined courses from the API
     async function fetchJoinedCourses() {
@@ -16,16 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Display the list of joined courses
     function displayCourses(courses) {
-        joinedCourseList.innerHTML = "";
+        joinedCourseList.innerHTML = ""; // Clear existing content
 
         if (courses.length === 0) {
-            joinedCourseList.innerHTML = "<p class='text-muted'>No joined courses found.</p>";
+            joinedCourseList.innerHTML = "<p class='text-muted'>No dynamic joined courses found.</p>";
             return;
         }
 
         courses.forEach(course => {
             const courseCard = document.createElement("div");
-            courseCard.classList.add("col");
+            courseCard.classList.add("col-md-4", "mb-4");
 
             courseCard.innerHTML = `
                 <div class="card shadow-sm">
@@ -33,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h5 class="card-title">${course.Title} (${course.Code})</h5>
                         <p class="card-text">Joined on: ${course.JoinDate}</p>
                         <small>Last viewed: ${course.ViewDate}</small>
+                        <a href="/course/${course.ID}" class="btn btn-primary mt-3">View Course</a>
                     </div>
                 </div>
             `;
@@ -40,17 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
             joinedCourseList.appendChild(courseCard);
         });
     }
-
-    // Filter courses based on search input
-    searchBar.addEventListener("input", (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const courseCards = joinedCourseList.querySelectorAll(".card");
-
-        courseCards.forEach(card => {
-            const title = card.querySelector(".card-title").textContent.toLowerCase();
-            card.style.display = title.includes(searchTerm) ? "block" : "none";
-        });
-    });
 
     // Initial fetch of joined courses
     fetchJoinedCourses();

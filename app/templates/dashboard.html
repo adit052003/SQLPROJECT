@@ -1,5 +1,7 @@
-<!-- dashboard.html -->
 {% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
 {% block content %}
 <div class="container my-4">
     <h2>Welcome, {{ name }}!</h2>
@@ -10,7 +12,7 @@
             {% for course in courses %}
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm">
-                        <img src="{{ url_for('static', filename='images/icon.svg') }}" class="card-img-top" alt="Course Image">
+                        <img class="course-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Iglesia_de_Nuestra_Se%C3%B1ora_de_La_Blanca%2C_Cardej%C3%B3n%2C_Espa%C3%B1a%2C_2012-09-01%2C_DD_02.JPG/550px-Iglesia_de_Nuestra_Se%C3%B1ora_de_La_Blanca%2C_Cardej%C3%B3n%2C_Espa%C3%B1a%2C_2012-09-01%2C_DD_02.JPG" alt="Course image">
                         <div class="card-body">
                             <h5 class="card-title">{{ course[0] }}</h5>
                             <p class="card-text">{{ course[1] }}</p>
@@ -18,7 +20,7 @@
                                 <small>Joined on: {{ course[2] }}</small><br>
                                 <small>Last viewed: {{ course[3] }}</small>
                             </p>
-                            <a href="{{ url_for('views.view_course', id=course[1]) }}" class="btn btn-primary">View Course</a>
+                            <a href="{{ url_for('views.view_course', id=course[4]) }}" class="btn btn-primary">View Course</a>
                         </div>
                     </div>
                 </div>
@@ -29,6 +31,7 @@
     </div>
 </div>
 {% endblock %}
+
 
 
 

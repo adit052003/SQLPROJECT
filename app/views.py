@@ -13,15 +13,15 @@ def home():
 @blueprint.route("/dashboard")
 @login_required
 def dashboard():
-     # SQL query to fetch the courses the user has joined
+    # SQL query to fetch the courses the user has joined
     sql = """
-    SELECT Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate
+    SELECT Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate, Courses.ID
     FROM JoinedCourses
     JOIN Courses ON JoinedCourses.CourseID = Courses.ID
     WHERE JoinedCourses.UserID = %s
     ORDER BY JoinedCourses.JoinDate DESC
     """
-    
+
     try:
         # Fetch the list of joined courses for the current user
         user_id = current_user.id
@@ -44,4 +44,6 @@ def view_course(id=None):
     course = Course.findMatchOR(('ID',), (id,))
     if course == None: return "Course does not exist"
     return render_template("view_course.html", course=course)
+ 
+
 
