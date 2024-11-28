@@ -20,6 +20,7 @@ CREATE TABLE Courses (
 	ID INTEGER PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(255) NOT NULL,
     Code VARCHAR(255)
+    Description text
 );
 
 CREATE TABLE Sessions (
