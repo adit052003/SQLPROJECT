@@ -20,7 +20,7 @@ def executeCommit(sql, args):
     db.commit()
     return result
 
-def fetchone(sql, args):
+def fetchone(sql, args=None):
     with get_db().cursor() as cursor:
         cursor.execute(sql, args)
         return cursor.fetchone()

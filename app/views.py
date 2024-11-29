@@ -65,7 +65,7 @@ def view_course(course_id=None, page_id=None):
 def render_about_page(course):
     participants = course.getParticipants()
     rating = course.getRating() or 0
-    sessions = CourseSession.findCourseSessions(course.id)
+    sessions = CourseSession.findCourseSessionsRatings(course.id)
     return render_template(
         "course_about.html", 
         course=course, 

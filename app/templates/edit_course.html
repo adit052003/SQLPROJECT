@@ -3,7 +3,7 @@
 {% block title %}{{ course.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-3 col-md-5 col-xl-4 mx-auto">
+<div class="container mt-3 mb-3 col-md-5 col-xl-4 mx-auto">
     <h1>Edit</h1>
     <div class="mb-3">
         <input type="text" id="course_title" placeholder="Course Title" class="form-control" value="{{ course.title }}" autofocus>
@@ -14,14 +14,27 @@
     <div class="mb-3">
         <textarea id="course_description" class="form-control" placeholder="Description">{{ course.description if course.description else "" }}</textarea>
     </div>
-    <button class="btn btn-primary" onclick="SaveChanges()">Save</button>
-    <a class="btn btn-secondary" href="{{ url_for('views.view_course', course_id=course.id) }}">Return To Course</a>
+    <section class="mt-4">
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <h3>Sessions</h3>
+            <button class="btn btn-primary" onclick="addSession({})">+</button>
+        </div>
+        <div id="sessions">
+        </div>
+    </section>
+
+    <div class="pb-2">
+        <button class="btn btn-primary" onclick="SaveChanges()">Save</button>
+        <a class="btn btn-secondary" href="{{ url_for('views.edit_course', course_id=course.id) }}">Reset</a>
+        <a class="btn btn-secondary" href="{{ url_for('views.view_course', course_id=course.id) }}">Return To Course</a>
+    </div>
 </div>
+
 <script>
-    function SaveChanges() {
-        title = document.getElementById('course_title').value;
-        code = document.getElementById('course_code').value;
-        description = document.getElementById('course_description').value;
+    async function SaveChanges() {
+        const title = document.getElementById('course_title').value;
+        const code = document.getElementById('course_code').value;
+        const description = document.getElementById('course_description').value;
 
         fetch('/api/edit_course', {
             method: 'POST',
@@ -29,13 +42,235 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                course_id: {{ course.id }},
+                course_id: course_id,
                 title: title,
                 code: code,
                 description: description
             })
         })
-        .then(response => { if (response.ok) { location.reload(); } else { alert("Could not edit course.");} })
+        .then(response => { if (response.ok) {  } else { alert("Could not edit course.");} });
+
+        const sessions = document.getElementById('sessions').children;  
+        await addNewProfessors(sessions); 
+
+        for (const session of sessions) {
+            saveSession(session);
+        }
+
+        for (const id of deleted_sessions) {
+            return fetch('/api/delete_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({session_id: id})
+            });
+        }
+
+        deleted_sessions = []
     }
+
+    async function addNewProfessors(sessions) {
+        let professors = [];
+        for (const session of sessions) {
+            if (session.querySelector('.professor-select').value != 'new') continue;
+            const fname = session.querySelector('.fn-input').value;
+            const lname = session.querySelector('.ln-input').value;
+            let added=false;
+            for (const [fn, ln] of professors) {
+                added |= (fn == fname) && (ln == lname);
+            }
+
+            if (!added) {
+                professors.push([fname, lname]);
+            }
+        }
+        
+        for (let i=0; i<professors.length; i++) {
+            const [fname, lname] = professors[i];
+            await fetch('/api/add_professor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({first_name: fname, last_name: lname})
+            })
+            .then(response => response.json()).then(response => professors[i] = [fname, lname, response.new_id]);
+        }
+
+        await getProfessors();
+
+        for (const session of sessions) {
+            if (session.querySelector('.professor-select').value != 'new') continue;
+            const fname = session.querySelector('.fn-input').value;
+            const lname = session.querySelector('.ln-input').value;
+            let added=false;
+            for (const [fn, ln, id] of professors) {
+                if ((fname == fn) && (lname == ln)) {
+                    session.querySelector('.professor-select').value = id;
+                    professorSelected(session.querySelector('.professor-select'));
+                }
+            }
+        }
+    }
+
+    function saveSession(sessionElement) {
+        const sessionData = {
+            course_id: course_id,
+            session_id: sessionElement.getAttribute('session-id'),
+            title: sessionElement.querySelector('.title-input').value, 
+            professor_id: sessionElement.querySelector('.professor-select').value,
+            classroom: sessionElement.querySelector('.class-input').value,
+            start_date: sessionElement.querySelector('.sd-input').value,
+            end_date: sessionElement.querySelector('.ed-input').value,
+            time: sessionElement.querySelector('.time-input').value,
+            description: sessionElement.querySelector('.description-input').value
+        };
+
+        const addr = sessionData.session_id == -1 ? '/api/add_session' : '/api/edit_session';
+
+        return fetch(addr, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(sessionData)
+        })
+        .then(response => response.json()).then(response => console.log(response));
+    }
+
+    function professorSelected(select) {
+        const newProf = select.value == "new";
+        select.parentElement.nextElementSibling.classList.remove('d-none');
+        if (select.value != "new") {
+            select.parentElement.nextElementSibling.classList.add('d-none');
+        }
+    }
+
+    function addSession(session) {
+        const sessions = document.getElementById('sessions');
+        const template = document.createElement('template');
+        console.log(session.start_date)
+        template.innerHTML = `
+        <div class="card mb-3" session-id="${session.id ?? -1}">
+            <div class="card-body">
+                <div class="mb-2">
+                    <input type="text" placeholder="Session Title" class="form-control title-input" value="${session.title ?? ""}" autofocus>
+                </div>
+                <div class="mb-2">
+                    <select class="form-select professor-select" onchange="professorSelected(this)">
+                        <option selected>Select Professor</option>
+                        <option>Add Professor</option>
+                    </select>
+                </div>
+                <div class="d-flex w-100 mb-2 d-none">
+                    <input type="text" placeholder="First Name" class="form-control me-2 fn-input" value="" autofocus>
+                    <input type="text" placeholder="Last Name" class="form-control ln-input" value="" autofocus>
+                </div>
+                <div class="d-flex w-100 mb-2">
+                    <input type="text" placeholder="Classroom" class="form-control me-2 class-input" value="${session.classroom ?? ""}" autofocus>
+                    <input type="text" placeholder="Time" class="form-control time-input" value="${session.time ?? ""}" autofocus>
+                </div>
+                <div class="d-flex w-100 mb-2">
+                    <input type="date" class="form-control me-2 sd-input" value="${session.start_date ?? ""}" autofocus>
+                    <input type="date" class="form-control ed-input" value="${session.end_date ?? ""}" autofocus>
+                </div>
+                <div class="mb-3">
+                    <textarea id="course_description" class="form-control description-input" placeholder="Description">${session.description ?? ""}</textarea>
+                </div>
+                <button class="btn btn-danger" onclick="deleteSession(this)">Delete</button>
+            </div>
+        </div>
+        `;
+        const sessionHtml = template.content.firstElementChild;
+        updateProfessorDropdown(sessionHtml.querySelector('.professor-select'));
+        sessionHtml.querySelector('.professor-select').value = session.professor_id ?? 'select';
+
+        sessions.appendChild(sessionHtml);
+    }
+
+    function deleteSession(button) {
+        const session = button.closest('.card');
+        const session_id = session.getAttribute('session-id');
+        session.parentElement.removeChild(session);
+
+        if (session_id != "-1") {
+            window.deleted_sessions.push(Number(session_id));
+        }
+    }
+
+    function updateProfessorDropdown(dropdown) {
+        const current = dropdown.value;
+        console.log(dropdown.value);
+        dropdown.replaceChildren([]);
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = 'select';
+        defaultOption.innerText = "Select Professor";
+        dropdown.appendChild(defaultOption);
+        
+        const newProfessorOption = document.createElement('option');
+        newProfessorOption.value = 'new';
+        newProfessorOption.innerText = "New Professor";
+        dropdown.appendChild(newProfessorOption);
+
+        for (const professor of professors) {
+            const option = document.createElement('option');
+            option.value = professor.id;
+            option.innerHTML = `${professor.first_name} ${professor.last_name}`;
+            dropdown.appendChild(option);
+        }
+        dropdown.value = current;
+        professorSelected(dropdown);
+    }
+
+    function updateProfessorDropdowns() {
+        const selects = document.getElementsByClassName('professor-select');
+        for (const select of selects) {
+            updateProfessorDropdown(select);
+        }
+    }
+
+    function getProfessors() {
+        return fetch('/api/get_professors', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            window.professors = data.professors;
+            updateProfessorDropdowns(data.professors);
+        });
+    }
+
+    function getSessions() {
+        return fetch('/api/get_sessions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({course_id: {{ course.id }}})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.sessions);
+            for (const session of data.sessions) {
+                addSession(session);
+            }
+        });
+    }
+
+    async function initialize() {
+        window.professors = [];
+        window.deleted_sessions = [];
+        window.course_id = {{ course.id }};
+        await getProfessors();
+        await getSessions();
+    }
+
+    initialize();
 </script>
 {% endblock %}
