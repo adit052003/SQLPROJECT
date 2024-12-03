@@ -3,6 +3,7 @@ from flask_login import current_user
 from .models.course import Course
 from .models.professors import Professor
 from .models.course_session import CourseSession
+from .models.course_section import CourseSection
 from .db_manager import fetchone, executeCommit
 from datetime import datetime
 
@@ -25,6 +26,14 @@ def get_sessions():
     
     sessions = CourseSession.findCourseSessions(data['course_id'])
     return jsonify(sessions=[s.serialize() for s in sessions])
+
+@api.route("/api/get_sections", methods=['POST'])
+def get_sections():
+    data = request.json
+    if 'course_id' not in data: return "ERROR: Course ID Missing", 400
+    
+    sections = CourseSection.findCourseSections(data['course_id'])
+    return jsonify(sections=[s.serialize() for s in sections])
 
 @api.route("/api/add_professor", methods=['POST'])
 def add_professor():
@@ -163,3 +172,68 @@ def delete_session():
     executeCommit("DELETE FROM Sessions WHERE ID=%s", args=(session_id,))
     return {}
 
+@api.route("/api/add_section", methods=['POST'])
+def add_section():
+    data = request.json
+    
+    if 'course_id' not in data: return { 'reason': "Course ID Invalid" }, 400
+
+    course = Course.findMatchOR(('ID',), (data['course_id']))
+    if not course: return { 'reason': "Course ID Invalid" }, 400
+    
+    if not fetchone("SELECT * FROM JoinedCourses WHERE UserID = %s AND CourseID = %s", (current_user.id, course.id)):
+        return { 'reason': "User has not joined course" }, 403
+    
+    if 'title' not in data: return { 'reason': "Section Title Missing" }, 403
+    if 'page_id' not in data: return { 'reason': "Page ID Missing" }, 403
+    
+    title = data['title']
+    page_id = data['page_id']
+    
+    # TODO: Check PageID Valid
+    # if not fetchone("SELECT * FROM Professors WHERE ID = %s", (professor_id,)):
+    #     return { 'reason': "Professor ID Invalid" }, 403
+    
+    executeCommit("INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (%s, %s, %s)", args=(course.id, title, page_id))
+    return {}
+    
+@api.route("/api/edit_section", methods=['POST'])
+def edit_section():
+    data = request.json
+    
+    if 'section_id' not in data: return { 'reason': "Session ID Missing" }, 400
+    
+    section_id = data.get('section_id')
+    print("SectionID", section_id)
+    section = CourseSection.findByID(section_id)
+    if not section: return { 'reason': "Session ID Invalid" }, 400
+    
+    if not fetchone("SELECT * FROM JoinedCourses WHERE UserID = %s AND CourseID = %s", (current_user.id, section.course_id)):
+        return { 'reason': "User has not joined course" }, 403
+    
+    title = data.get('title', section.title)
+    page_id = data.get('page_id', section.page_id)
+    
+    # TODO: Check Page ID Valid
+    # if not fetchone("SELECT * FROM Professors WHERE ID = %s", (professor_id,)):
+    #     return { 'reason': "Professor ID Invalid" }, 403
+    
+    executeCommit("UPDATE CourseSections SET Title=%s, PageID=%s WHERE ID=%s", args=(title, page_id, section_id))
+    return {}
+
+  
+@api.route("/api/delete_section", methods=['POST'])
+def delete_section():
+    data = request.json
+    
+    if 'section_id' not in data: return { 'reason': "Section ID Missing" }, 400
+    
+    section_id = data.get('section_id')
+    section = CourseSection.findByID(section_id)
+    if not section: return { 'reason': "Section ID Invalid" }, 400
+    
+    if not fetchone("SELECT * FROM JoinedCourses WHERE UserID = %s AND CourseID = %s", (current_user.id, section.course_id)):
+        return { 'reason': "User has not joined course" }, 403
+    
+    executeCommit("DELETE FROM CourseSections WHERE ID=%s", args=(section_id,))
+    return {}

@@ -41,6 +41,16 @@ CREATE TABLE Sessions (
         ON DELETE CASCADE
 );
 
+CREATE TABLE CourseSections(
+    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    CourseID INTEGER NOT NULL,
+    Title VARCHAR(256) nOT NULL,
+    PageID INTEGER NOT NULL,
+    FOREIGN KEY (CourseID) REFERENCES Courses(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
 CREATE TABLE JoinedCourses (
 	UserID INTEGER NOT NULL,
     CourseID INTEGER NOT NULL,
@@ -106,6 +116,10 @@ INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroo
 INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (3, 3, "Fall 2024", STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "RNT 121", "TR 1:30 - 2:45 AM");
 INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (6, 2, "Spring 2024 A", STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 208", "MW 12:00 - 1:15 PM");
 INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (6, 2, "Spring 2024 B", STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 218", "WF 3:00 - 4:15 PM");
+
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 1", 1);
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 2", 2);
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 3", 3);
 
 INSERT INTO JoinedCourses (UserID, CourseID, PinIndex) VALUES (1, 1, 1);
 INSERT INTO JoinedCourses (UserID, CourseID, PinIndex) VALUES (1, 5, 2);
