@@ -22,14 +22,13 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">
-                    {{ ['Spring', 'Summer', 'Fall'][session.start_date.month // 4] }} 
-                    {{ session.start_date.year }}
-                    {{ session.title if session.title else "" }}
+                    {{ session.title }}
                 </h5>
                 <p class="card-subtitle mb-2 text-muted">
                     {{ session.professor_first_name }} {{ session.professor_last_name }}<br>
                     {{ session.classroom }}<br>
                     {{ session.time }}<br>
+                    {{ session.start_date }} - {{session.end_date}}<br>
                 </p>
                 <p class="card-text">{{ session.description if session.description else "" }}</p>
                 <div class="d-flex justify-content-end">

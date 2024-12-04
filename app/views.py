@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from .db_manager import fetchall, executeCommit, fetchone
 from .models.course import Course
 from .models.course_session import CourseSession
+from .models.course_section import CourseSection
 
 blueprint = Blueprint("views", __name__)
 
@@ -58,17 +59,19 @@ def create_course():
 @login_required
 def view_course(course_id=None, page_id=None):
     course = Course.findMatchOR(('ID',), (course_id,))
+    sections = CourseSection.findCourseSections(course.id)
     if course == None: return "Course does not exist"
-    if page_id == None: return render_about_page(course)
-    return render_template("view_course.html", course=course, page_id=page_id, joined=current_user.hasJoinedCourse(course_id))
+    if page_id == None: return render_about_page(course, sections)
+    return render_template("view_course.html", course=course, sections=sections, page_id=page_id, joined=current_user.hasJoinedCourse(course_id))
 
-def render_about_page(course):
+def render_about_page(course, sections):
     participants = course.getParticipants()
     rating = course.getRating() or 0
     sessions = CourseSession.findCourseSessionsRatings(course.id)
     return render_template(
         "course_about.html", 
         course=course, 
+        sections = sections,
         participants=participants, 
         rating=f"{rating/2}".rstrip('.0'), 
         joined=current_user.hasJoinedCourse(course.id),

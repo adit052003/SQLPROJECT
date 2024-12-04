@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory
+from flask import current_app as app
 from flask_login import current_user
 from .models.course import Course
 from .models.professors import Professor
@@ -6,6 +7,7 @@ from .models.course_session import CourseSession
 from .models.course_section import CourseSection
 from .db_manager import fetchone, executeCommit
 from datetime import datetime
+import os
 
 api = Blueprint("api", __name__)
 
@@ -237,3 +239,36 @@ def delete_section():
     
     executeCommit("DELETE FROM CourseSections WHERE ID=%s", args=(section_id,))
     return {}
+
+@api.route("/api/upload_course_image", methods=['POST'])
+def upload_course_image():
+    if 'course_id' not in request.form: return { 'reason': "Course ID Missing" }, 400
+    course = Course.findMatchOR(('ID',), (request.form['course_id']))
+    if not course: return { 'reason': "Course ID Invalid" }, 400
+    
+    if len(request.files) > 0:
+        file = request.files['file']
+        extension = file.filename.split('.')[-1]
+        
+        if not course.image_id:
+            executeCommit("INSERT INTO Files (Filename) VALUES (%s)", file.filename)
+            file_id = fetchone("SELECT LAST_INSERT_ID()")[0]
+            executeCommit("UPDATE Courses SET ImageID = %s WHERE ID = %s", (file_id, course.id))
+        else:
+            file_id = course.image_id
+            executeCommit("UPDATE Files SET Filename=%s WHERE ID=%s", (file.filename, file_id))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], f'{file_id}.{extension}'))
+    else:
+        if course.image_id:
+            file, = fetchone("SELECT Filename FROM Files Where ID=%s", (course.image_id,))
+            executeCommit("DELETE FROM Files WHERE ID=%s", course.image_id)
+            executeCommit("UPDATE Courses SET ImageID = NULL WHERE ID = %s", course.id)
+            extension = file.split('.')[-1]
+            os.remove(os.path.join(app.config["UPLOAD_FOLDER"], f'{course.image_id}.{extension}'))
+    return {}
+
+@api.route("/files/<id>")
+def get_file(id):
+    file, = fetchone("SELECT Filename FROM Files Where ID=%s", (id,))
+    extension = file.split('.')[-1]
+    return send_from_directory(app.config["UPLOAD_FOLDER"], f'{id}.{extension}')

@@ -2,6 +2,12 @@
 * This file is used to recreate the database from scratch 
 * Modify this with any database changes
 */
+
+CREATE TABLE Files (
+    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    Filename VARCHAR(255) NOT NULL,
+);
+
 CREATE TABLE Users (
 	ID INTEGER PRIMARY KEY,
     FirstName VARCHAR(255) NOT NULL,
@@ -20,7 +26,11 @@ CREATE TABLE Courses (
 	ID INTEGER PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(255) NOT NULL,
     Code VARCHAR(255),
-    Description TEXT
+    Description TEXT,
+    ImageID INTEGER,
+    FOREIGN KEY (ImageID) REFERENCES Files(ID)
+		ON UPDATE CASCADE
+        ON DELETE SET NULL
 );
 
 CREATE TABLE Sessions (
