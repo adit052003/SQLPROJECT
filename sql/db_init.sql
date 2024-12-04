@@ -2,6 +2,12 @@
 * This file is used to recreate the database from scratch 
 * Modify this with any database changes
 */
+
+CREATE TABLE Files (
+    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    Filename VARCHAR(255) NOT NULL,
+);
+
 CREATE TABLE Users (
 	ID INTEGER PRIMARY KEY,
     FirstName VARCHAR(255) NOT NULL,
@@ -20,24 +26,38 @@ CREATE TABLE Courses (
 	ID INTEGER PRIMARY KEY AUTO_INCREMENT,
     Title VARCHAR(255) NOT NULL,
     Code VARCHAR(255),
-    Description TEXT
+    Description TEXT,
+    ImageID INTEGER,
+    FOREIGN KEY (ImageID) REFERENCES Files(ID)
+		ON UPDATE CASCADE
+        ON DELETE SET NULL
 );
 
 CREATE TABLE Sessions (
 	ID INTEGER PRIMARY KEY AUTO_INCREMENT,
     CourseID INTEGER NOT NULL,
+    Title VARCHAR(256) NOT NULL,
     ProfessorID INTEGER NOT NULL,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
     Classroom VARCHAR(64),
     Time VARCHAR(64),
-    Title VARCHAR(4),
     Description TEXT,
     FOREIGN KEY (CourseID) REFERENCES Courses(ID)
 		ON UPDATE CASCADE
         ON DELETE CASCADE,
     FOREIGN KEY (ProfessorID) REFERENCES Professors(ID)
 		ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
+CREATE TABLE CourseSections(
+    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    CourseID INTEGER NOT NULL,
+    Title VARCHAR(256) nOT NULL,
+    PageID INTEGER NOT NULL,
+    FOREIGN KEY (CourseID) REFERENCES Courses(ID)
+        ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
@@ -100,12 +120,16 @@ INSERT INTO Courses (Title, Code) VALUES ("Modern Algebra", "MATH 450");
 INSERT INTO Courses (Title, Code) VALUES ("Introduction to Linguistics", "LING 101");
 INSERT INTO Courses (Title, Code) VALUES ("Human Flourishing", "FNDN 102");
 
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time, Description) VALUES (1, 1, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM", "Teaches very well");
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (1, 1, STR_TO_DATE('September 4 2022', '%M %d %Y'), STR_TO_DATE('December 9 2022', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM");
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (4, 2, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "CANIL 209", "TR 12:00 - 1:15 PM / F 1:30 - 2:45 PM");
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time) VALUES (3, 3, STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "RNT 121", "TR 1:30 - 2:45 AM");
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time, Title) VALUES (6, 2, STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 208", "MW 12:00 - 1:15 PM", "A");
-INSERT INTO Sessions (CourseID, ProfessorID, StartDate, EndDate, Classroom, Time, Title) VALUES (6, 2, STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 218", "WF 3:00 - 4:15 PM", "B");
+INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time, Description) VALUES (1, 1, "Fall 2024", STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM", "Teaches very well");
+INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (1, 1, "Spring 2022", STR_TO_DATE('September 4 2022', '%M %d %Y'), STR_TO_DATE('December 9 2022', '%M %d %Y'), "NEU 37", "TR 9:30 - 10:45 AM");
+INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (4, 2, "Fall 2024", STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "CANIL 209", "TR 12:00 - 1:15 PM / F 1:30 - 2:45 PM");
+INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (3, 3, "Fall 2024", STR_TO_DATE('September 4 2024', '%M %d %Y'), STR_TO_DATE('December 9 2024', '%M %d %Y'), "RNT 121", "TR 1:30 - 2:45 AM");
+INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (6, 2, "Spring 2024 A", STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 208", "MW 12:00 - 1:15 PM");
+INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (6, 2, "Spring 2024 B", STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 218", "WF 3:00 - 4:15 PM");
+
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 1", 1);
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 2", 2);
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 3", 3);
 
 INSERT INTO JoinedCourses (UserID, CourseID, PinIndex) VALUES (1, 1, 1);
 INSERT INTO JoinedCourses (UserID, CourseID, PinIndex) VALUES (1, 5, 2);
