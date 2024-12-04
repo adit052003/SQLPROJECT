@@ -35,5 +35,5 @@ class CourseSection:
         WHERE CourseID = %s
         '''
         result = fetchall(sql, (courseID,))
-        if not result: return None
+        if not result: return []
         return [CourseSection(*row) for row in result]
