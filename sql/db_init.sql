@@ -82,6 +82,17 @@ CREATE TABLE SessionRatings (
         ON DELETE CASCADE
 );
 
+CREATE TABLE Pages (
+    ID INT AUTO_INCREMENT PRIMARY KEY,      
+    CourseID INT NOT NULL,                   
+    Title VARCHAR(255) NOT NULL,             
+    SectionIndex INT NOT NULL,               
+    Content TEXT,                            
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    FOREIGN KEY (CourseID) REFERENCES Courses(ID) ON DELETE CASCADE
+);
+
 
 -- Sample Data
 
@@ -120,3 +131,11 @@ INSERT INTO CourseRatings (UserID, CourseID, Rating) VALUES (1, 6, 10);
 INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (1, 1, 10);
 INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (1, 2, 7);
 INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (1, 3, 10);
+
+INSERT INTO Pages (CourseID, Title, SectionIndex, Content)
+VALUES
+    (1, 'Introduction to Python', 1, 'This is an introduction to Python programming.'),
+    (1, 'Data Types and Variables', 2, 'Learn about data types and variables in Python.'),
+    (2, 'Course Overview', 1, 'Welcome to the advanced mathematics course.'),
+    (2, 'Functions and Graphs', 2, 'An introduction to mathematical functions and graphs.');
+

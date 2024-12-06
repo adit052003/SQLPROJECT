@@ -1,0 +1,12 @@
+{% extends "view_course.html" %}
+
+{% block course_content %}
+<div class="container mt-4">
+    <h2>{{ page.Title }}</h2>
+    <div class="content">
+        {{ page.RenderedContent|safe }}
+    </div>
+</div>
+{% endblock %}
+
+
