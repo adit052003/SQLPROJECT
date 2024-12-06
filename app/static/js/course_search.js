@@ -24,12 +24,13 @@ function listCourses(courses) {
 }
 
 function generateCourseElement(course) {
+    const img_url = course.img_url ?? "https://placehold.co/600x400?text=No+Image";
     const template = document.createElement('template');
     template.innerHTML = `
     <div class="col">
         <a href="/course/${course.id}">
         <div class="card h-100 course-card">
-            <img class="course-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Iglesia_de_Nuestra_Se%C3%B1ora_de_La_Blanca%2C_Cardej%C3%B3n%2C_Espa%C3%B1a%2C_2012-09-01%2C_DD_02.JPG/550px-Iglesia_de_Nuestra_Se%C3%B1ora_de_La_Blanca%2C_Cardej%C3%B3n%2C_Espa%C3%B1a%2C_2012-09-01%2C_DD_02.JPG" alt="Course image">
+            <img class="course-img" src="${img_url}" alt="Course image">
             
             <!-- Number of registered users -->
             <span class="img-text" style="top: 10px; left: 10px; border-radius: 3px;">

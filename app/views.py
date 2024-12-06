@@ -9,6 +9,7 @@ from .db_manager import fetchall, executeCommit, fetchone
 from .models.course import Course
 from .models.course_session import CourseSession
 import markdown  # Library for rendering Markdown content
+from .models.course_section import CourseSection
 
 blueprint = Blueprint("views", __name__)
 
@@ -159,14 +160,15 @@ def delete_page(course_id, page_id):
     flash("Page deleted successfully!", "success")
     return redirect(url_for("views.view_course", course_id=course_id))
 
-def render_about_page(course, pages):
+def render_about_page(course, sections):
     participants = course.getParticipants()
     rating = course.getRating() or 0
-    sessions = CourseSession.findCourseSessions(course.id)
+    sessions = CourseSession.findCourseSessionsRatings(course.id)
     return render_template(
         "course_about.html", 
         course=course, 
-        pages=pages,
+        pages=sections,
+        sections =sections,
         participants=participants, 
         rating=f"{rating/2}".rstrip('.0'), 
         joined=current_user.hasJoinedCourse(course.id),
