@@ -24,8 +24,8 @@ def edit_course():
     if not queries.has_joined_course(course['ID'], current_user.id): return "ERROR: User has not joined course", 403
     
     title = data.get('title', course['Title'])
-    code = data.get('title', course['Code'])
-    description = data.get('title', course['Description'])
+    code = data.get('code', course['Code'])
+    description = data.get('description', course['Description'])
 
     queries.edit_course(course['ID'], title, code, description)    
     return {}
@@ -107,7 +107,7 @@ def delete_session():
     session = queries.get_session(data['session_id'])
     if not session: return { 'reason': "Session ID Invalid" }, 400
     
-    if queries.has_joined_course(session['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
+    if not queries.has_joined_course(session['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
     queries.delete_session(session['ID'])
     return {}
 
@@ -141,7 +141,7 @@ def join_course():
     course_id = data['course_id']
     
     if not queries.get_course(course_id): return { 'reason': "ERROR: Course ID Invalid" }, 400
-    if queries.has_joined_course(course_id, current_user.id): return { 'reason': "ERROR: User Already Joined Course" }, 403
+    if not queries.has_joined_course(course_id, current_user.id): return { 'reason': "ERROR: User Already Joined Course" }, 403
     queries.join_course(course_id, current_user.id)
     return {}
 
@@ -153,7 +153,7 @@ def add_section():
     
     if 'course_id' not in data: return { 'reason': "ERROR: Course ID Missing" }, 400
     if not queries.get_course(data['course_id']): return { 'reason': "ERROR: Course ID Invalid" }, 400
-    if queries.has_joined_course(data['course_id'], current_user.id): return { 'reason': "User has not joined course" }, 403
+    if not queries.has_joined_course(data['course_id'], current_user.id): return { 'reason': "User has not joined course" }, 403
     
     if 'title' not in data: return { 'reason': "Section Title Missing" }, 403
     if 'page_id' not in data: return { 'reason': "Page ID Missing" }, 403
@@ -172,7 +172,7 @@ def edit_section():
     if 'section_id' not in data: return { 'reason': "Session ID Missing" }, 400
     section = queries.get_section(data['section_id'])
     if not section: return { 'reason': "Session ID Invalid" }, 400
-    if queries.has_joined_course(section['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
+    if not queries.has_joined_course(section['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
     
     title = data.get('title', section['Title'])
     page_id = data.get('page_id', section['PageID'])
@@ -191,7 +191,7 @@ def delete_section():
     if 'section_id' not in data: return { 'reason': "Section ID Missing" }, 400
     section = queries.get_section(data['section_id'])
     if not section: return { 'reason': "Session ID Invalid" }, 400
-    if queries.has_joined_course(section['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
+    if not queries.has_joined_course(section['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
     queries.delete_section(section['ID'])
     return {}
 

@@ -46,7 +46,7 @@ def set_course_image_id(course_id, image_id):
 #### Sessions ####
 
 def get_session(session_id):
-    return fetchall("SELECT * FROM Sessions WHERE ID=%s", session_id)
+    return fetchone("SELECT * FROM Sessions WHERE ID=%s", session_id)
 
 def get_course_sessions(course_id):
     sql = '''

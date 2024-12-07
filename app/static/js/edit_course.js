@@ -3,7 +3,7 @@ async function SaveChanges() {
     const code = document.getElementById('course_code').value;
     const description = document.getElementById('course_description').value;
 
-    fetch('/api/edit_course', {
+    await fetch('/api/edit_course', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -21,11 +21,11 @@ async function SaveChanges() {
     await addNewProfessors(sessions); 
 
     for (const session of sessions) {
-        saveSession(session);
+        await saveSession(session);
     }
 
     for (const id of deleted_sessions) {
-        return fetch('/api/delete_session', {
+        await fetch('/api/delete_session', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,8 +36,8 @@ async function SaveChanges() {
 
     deleted_sessions = []
 
-    saveSections();
-    saveImage();
+    await saveSections();
+    await saveImage();
 
     location.reload();
 }
@@ -49,7 +49,7 @@ function saveImage() {
     formData.append('course_id', course_id);
     if (window.img_file) formData.append('file', window.img_file);
 
-    fetch('/api/upload_course_image', {
+    return fetch('/api/upload_course_image', {
         method: 'POST',
         body: formData
     })
@@ -133,7 +133,7 @@ function professorSelected(select) {
     }
 }
 
-function saveSections() {
+async function saveSections() {
     const sectionElements = document.getElementById('sections').children; 
 
     for (const sectionElement of sectionElements) {
@@ -146,7 +146,7 @@ function saveSections() {
 
         const addr = section_data.section_id == -1 ? '/api/add_section' : '/api/edit_section';
 
-        fetch(addr, {
+        await fetch(addr, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -157,7 +157,7 @@ function saveSections() {
     }
 
     for (const id of deleted_sections) {
-        fetch('/api/delete_section', {
+        await fetch('/api/delete_section', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
