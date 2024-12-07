@@ -5,8 +5,8 @@
     <div class="col-md-6">
         <div class="card mb-3">
             <div class="card-body">
-                <p class="card-subtitle mb-2 text-muted">{{ course.code }}<br>{{ participants }} {{ "Participants" if participants != 1 else "Participant"}}</p>
-                <p class="card-text">{{ course.description if course.description else "" }}</p>
+                <p class="card-subtitle mb-2 text-muted">{{ course['Code'] }}<br>{{ participants }} {{ "Participants" if participants != 1 else "Participant"}}</p>
+                <p class="card-text">{{ course['Description'] if course['Description'] else "" }}</p>
                 {% if rating %}
                 <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
                     {{ rating }} ⭐
@@ -22,19 +22,21 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">
-                    {{ session.title }}
+                    {{ session['Title'] }}
                 </h5>
                 <p class="card-subtitle mb-2 text-muted">
-                    {{ session.professor_first_name }} {{ session.professor_last_name }}<br>
-                    {{ session.classroom }}<br>
-                    {{ session.time }}<br>
-                    {{ session.start_date }} - {{session.end_date}}<br>
+                    {{ session['FirstName'] }} {{ session['LastName'] }}<br>
+                    {{ session['Classroom'] }}<br>
+                    {{ session['Time'] }}<br>
+                    {{ session['StartDate'] }} - {{session['EndDate']}}<br>
                 </p>
-                <p class="card-text">{{ session.description if session.description else "" }}</p>
+                {% if session['Description'] %}
+                <p class="card-text">{{ session['Description'] if session['Description'] else "" }}</p>
+                {% endif %}
                 <div class="d-flex justify-content-end">
-                    {% if session.rating %}
+                    {% if session['Rating'] %}
                     <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
-                       {{  '%g' % (session.rating/2) }} ⭐
+                       {{  '%g' % (session['Rating']/2) }} ⭐
                     </span>
                     {% endif %}
                 </div>

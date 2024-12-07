@@ -1,6 +1,7 @@
 from flask import g
 import flask
 import pymysql
+import pymysql.cursors
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -9,7 +10,8 @@ def get_db():
             host = flask.current_app.config['MYSQL_HOST'],
             user = flask.current_app.config['MYSQL_USER'],
             password = flask.current_app.config['MYSQL_PASSWORD'],
-            db = flask.current_app.config['MYSQL_DB']
+            db = flask.current_app.config['MYSQL_DB'],
+            cursorclass=pymysql.cursors.DictCursor
         )
     return db
 

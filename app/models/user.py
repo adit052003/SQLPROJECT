@@ -3,12 +3,12 @@ from ..db_manager import fetchone
 
 class User(UserMixin):
     
-    def __init__(self, id, first_name, last_name, email, password):
-        self.id = id
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
+    def __init__(self, **data):
+        self.id = data['Id']
+        self.first_name = data['FirstName']
+        self.last_name = data['LastName']
+        self.email = data['Email']
+        self.password = data['Password']
         
     def findMatchOR(keys, values):
         sql = "SELECT `Id`, `FirstName`, `LastName`, `Email`, `Password` FROM Users WHERE "
@@ -16,7 +16,7 @@ class User(UserMixin):
         print(sql + where)
         result = fetchone(sql + where, values)
         if not result: return None
-        return User(*result)
+        return User(**result)
     
     def hasJoinedCourse(self, courseID):
         sql = '''
