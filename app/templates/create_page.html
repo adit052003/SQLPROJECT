@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Create Page</h1>
-<form method="POST">
+<form method="POST" action="{{ url_for('views.create_page', course_id=course_id) }}">
     <div class="form-group">
         <label for="title">Title</label>
         <input type="text" id="title" name="title" class="form-control" required>
@@ -17,4 +17,21 @@
     </div>
     <button type="submit" class="btn btn-success">Create</button>
 </form>
+
+
+<!-- Markdown Preview -->
+<div class="mt-4">
+    <h5>Content Preview</h5>
+    <div id="markdown-preview" class="border p-3"></div>
+</div>
+
+<script>
+    const contentField = document.getElementById("content");
+    const previewDiv = document.getElementById("markdown-preview");
+
+    contentField.addEventListener("input", () => {
+        const content = contentField.value;
+        previewDiv.innerHTML = marked.parse(content); // Use the "marked.js" library for Markdown rendering
+    });
+</script>
 {% endblock %}

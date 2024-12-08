@@ -2,14 +2,10 @@ from flask import (
     Blueprint, render_template, request, redirect, 
     flash, url_for
 )
-from markupsafe import Markup
-
 from flask_login import login_required, current_user
 from .db_manager import fetchall, executeCommit, fetchone
 from .models.course import Course
 from .models.course_session import CourseSession
-import markdown  # Library for rendering Markdown content
-from .models.course_section import CourseSection
 
 blueprint = Blueprint("views", __name__)
 
@@ -66,75 +62,69 @@ def view_course(course_id, page_id=None):
         flash("Course does not exist.", "danger")
         return redirect(url_for("views.dashboard"))
 
-    # Fetch all pages for the navigation bar
+    # Fetch all pages for navigation
     sql_pages = """
     SELECT ID as page_id, Title as title
     FROM Pages
     WHERE CourseID = %s
     ORDER BY SectionIndex ASC
     """
-    sections = fetchall(sql_pages, (course_id,))  # Ensure this returns a list of dictionaries
+    sections = fetchall(sql_pages, (course_id,))
 
     if page_id:
         # Fetch specific page details
-        sql = "SELECT * FROM Pages WHERE CourseID = %s AND ID = %s"
-        page = fetchone(sql, (course_id, page_id))
-        if not page:
+        sql = "SELECT ID, Title, Content FROM Pages WHERE CourseID = %s AND ID = %s"
+        page_data = fetchone(sql, (course_id, page_id))
+        if not page_data:
             flash("Page not found.", "danger")
             return redirect(url_for("views.view_course", course_id=course_id))
-
-        # Render Markdown content
-        page["RenderedContent"] = Markup(markdown.markdown(page["Content"]))
+        
+        # Map SQL data to dictionary
+        page = {"ID": page_data[0], "Title": page_data[1], "Content": page_data[2]}
         return render_template(
-            "view_page.html", 
-            course=course, 
-            page=page, 
-            sections=sections,  # Pass the sections for navigation
-            joined=current_user.hasJoinedCourse(course_id)
+            "view_page.html",
+            course=course,
+            page=page,
+            sections=sections,
+            joined=current_user.hasJoinedCourse(course_id),
         )
 
-    # Render about page with sections
+    # Render about page if no specific page is requested
     return render_about_page(course, sections)
 
 @blueprint.route("/course/<course_id>/create_page", methods=["GET", "POST"])
 @login_required
 def create_page(course_id):
     if request.method == "POST":
-        # Get form data
         title = request.form.get("title")
         section_index = request.form.get("section_index")
         content = request.form.get("content")
 
-        # Ensure all required fields are provided
         if not title or not section_index or not content:
             flash("All fields are required.", "danger")
             return redirect(url_for("views.create_page", course_id=course_id))
 
-        # Insert into Pages table
         sql = """
         INSERT INTO Pages (CourseID, Title, SectionIndex, Content)
         VALUES (%s, %s, %s, %s)
         """
-        try:
-            executeCommit(sql, (course_id, title, section_index, content))
-            flash("Page created successfully!", "success")
-        except Exception as e:
-            flash("Failed to create the page.", "danger")
-            return redirect(url_for("views.create_page", course_id=course_id))
+        executeCommit(sql, (course_id, title, section_index, content))
+        flash("Page created successfully!", "success")
 
         return redirect(url_for("views.view_course", course_id=course_id))
-
+    
     return render_template("create_page.html", course_id=course_id)
 
-# Edit a page
 @blueprint.route("/course/<course_id>/<page_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_page(course_id, page_id):
-    sql_fetch = "SELECT * FROM Pages WHERE ID = %s AND CourseID = %s"
-    page = fetchone(sql_fetch, (page_id, course_id))
-    if not page:
+    sql_fetch = "SELECT ID, Title, SectionIndex, Content FROM Pages WHERE ID = %s AND CourseID = %s"
+    page_data = fetchone(sql_fetch, (page_id, course_id))
+    if not page_data:
         flash("Page not found or does not belong to this course.", "danger")
         return redirect(url_for("views.view_course", course_id=course_id))
+    
+    page = {"ID": page_data[0], "Title": page_data[1], "SectionIndex": page_data[2], "Content": page_data[3]}
 
     if request.method == "POST":
         title = request.form.get("title")
@@ -142,16 +132,15 @@ def edit_page(course_id, page_id):
         content = request.form.get("content")
         sql_update = """
         UPDATE Pages 
-        SET Title = %s, SectionIndex = %s, Content = %s, UpdatedAt = CURRENT_TIMESTAMP
+        SET Title = %s, SectionIndex = %s, Content = %s
         WHERE ID = %s AND CourseID = %s
         """
         executeCommit(sql_update, (title, section_index, content, page_id, course_id))
         flash("Page updated successfully!", "success")
         return redirect(url_for("views.view_course", course_id=course_id, page_id=page_id))
-    
+
     return render_template("edit_page.html", page=page)
 
-# Delete a page
 @blueprint.route("/course/<course_id>/<page_id>/delete", methods=["POST"])
 @login_required
 def delete_page(course_id, page_id):
@@ -167,8 +156,7 @@ def render_about_page(course, sections):
     return render_template(
         "course_about.html", 
         course=course, 
-        pages=sections,
-        sections =sections,
+        sections=sections,
         participants=participants, 
         rating=f"{rating/2}".rstrip('.0'), 
         joined=current_user.hasJoinedCourse(course.id),
@@ -176,7 +164,11 @@ def render_about_page(course, sections):
     )
 
 @blueprint.route("/course/<course_id>/edit")
-def edit_course(course_id=None):
+@login_required
+def edit_course(course_id):
     course = Course.findMatchOR(('ID',), (course_id,))
-    if course == None: return "Course does not exist"
+    if not course:
+        flash("Course does not exist.", "danger")
+        return redirect(url_for("views.dashboard"))
     return render_template("edit_course.html", course=course)
+
