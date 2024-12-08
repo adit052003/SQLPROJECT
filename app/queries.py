@@ -136,6 +136,9 @@ def get_joined_courses(user_id):
     for course in courses: course['ImageURL'] = f'/files/{course["ImageID"]}' if course["ImageID"] else None
     return courses
 
+def update_view_date(course_id, user_id):
+    executeCommit("UPDATE JoinedCourses SET ViewDate = now() WHERE CourseID=%s AND UserID=%s", (course_id, user_id))
+
 # **** Course Sections ****
 
 def get_section(section_id):

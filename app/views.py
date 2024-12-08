@@ -31,8 +31,13 @@ def view_course(course_id=None, page_id=None):
     course = queries.get_course(course_id)
     if course == None: return "Course does not exist"
     
+    if queries.has_joined_course(course_id, current_user.id):
+        queries.update_view_date(course_id, current_user.id)
+    
     sections = queries.get_course_sections(course_id)
     if page_id == None: return render_about_page(course, sections)
+    
+    
     return render_template("view_course.html", course=course, sections=sections, page_id=page_id, joined=current_user.hasJoinedCourse(course_id))
 
 def render_about_page(course, sections):
