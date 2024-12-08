@@ -136,12 +136,11 @@ def joined_courses():
 @api.route("/api/join_course", methods=['POST'])
 def join_course():
     data = request.json
-    
     if 'course_id' not in data: return { 'reason': "ERROR: Course ID Missing" }, 400
     course_id = data['course_id']
     
     if not queries.get_course(course_id): return { 'reason': "ERROR: Course ID Invalid" }, 400
-    if not queries.has_joined_course(course_id, current_user.id): return { 'reason': "ERROR: User Already Joined Course" }, 403
+    if queries.has_joined_course(course_id, current_user.id): return { 'reason': "ERROR: User Already Joined Course" }, 403
     queries.join_course(course_id, current_user.id)
     return {}
 
@@ -219,3 +218,40 @@ def upload_course_image():
 @api.route("/files/<id>")
 def get_file(id):
     return send_from_directory(app.config["UPLOAD_FOLDER"], queries.get_real_filename(id))
+
+# **** Ratings ****
+
+@api.route("/api/rate_course", methods=['POST'])
+def rate_course():
+    data = request.json
+    if 'course_id' not in data: return { 'reason': "ERROR: Course ID Missing" }, 400
+    if not queries.get_course(data['course_id']): return { 'reason': "ERROR: Course ID Invalid" }, 400
+    if not queries.has_joined_course(data['course_id'], current_user.id): return { 'reason': "User has not joined course" }, 403
+    if 'rating' not in data: return { 'reason': "Rating Missing" }, 400
+    
+    try:
+        rating = int(data['rating'])
+    except ValueError: return { 'reason': "Rating Invalid" }, 400
+    if not (1 <= rating <= 10): return { 'reason': "Rating Invalid" }, 400
+    
+    queries.rate_course(data['course_id'], current_user.id, rating)
+    return {}
+
+@api.route("/api/rate_session", methods=['POST'])
+def rate_session():
+    data = request.json
+    print(data)
+    if 'session_id' not in data: return { 'reason': "Session ID Missing" }, 400
+    if 'rating' not in data: return { 'reason': "Rating Missing" }, 400
+    
+    try:
+        rating = int(data['rating'])
+    except ValueError: return { 'reason': "Rating Invalid" }, 400
+    if not (1 <= rating <= 10): return { 'reason': "Rating Invalid" }, 400
+    
+    session = queries.get_session(data['session_id'])
+    if not session: return { 'reason': "Session ID Invalid" }, 400
+    if not queries.has_joined_course(session['CourseID'], current_user.id): return { 'reason': "User has not joined course" }, 403
+    
+    queries.rate_session(session['ID'], current_user.id, rating)
+    return {}

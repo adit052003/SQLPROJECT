@@ -7,9 +7,13 @@
             <div class="card-body">
                 <p class="card-subtitle mb-2 text-muted">{{ course['Code'] }}<br>{{ participants }} {{ "Participants" if participants != 1 else "Participant"}}</p>
                 <p class="card-text">{{ course['Description'] if course['Description'] else "" }}</p>
-                {% if rating %}
-                <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
-                    {{ rating }} ⭐
+                {% if joined %}
+                <button class="img-text border-0" style="top: 10px; right: 10px; border-radius: 3px;" data-bs-toggle="modal" data-bs-target="#rateCourseModal" onclick="ratingClicked(0)">
+                    {{ rating if rating else "N/A" }} ⭐
+                </button>
+                {% else %}
+                <span class="img-text border-0" style="top: 10px; right: 10px; border-radius: 3px;">
+                    {{ rating if rating else "N/A" }} ⭐
                 </span>
                 {% endif %}
             </div>
@@ -34,9 +38,13 @@
                 <p class="card-text">{{ session['Description'] if session['Description'] else "" }}</p>
                 {% endif %}
                 <div class="d-flex justify-content-end">
-                    {% if session['Rating'] %}
-                    <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
-                       {{  '%g' % (session['Rating']/2) }} ⭐
+                    {% if joined %}
+                    <button class="img-text border-0" style="top: 10px; right: 10px; border-radius: 3px;" data-bs-toggle="modal" data-bs-target="#rateCourseModal" onclick="ratingClicked({{ session['ID'] }})">
+                       {{  '%g' % (session['Rating']/2) if session['Rating'] else 'N/A' }} ⭐
+                    </button>
+                    {% else %}
+                    <span class="img-text border-0" style="top: 10px; right: 10px; border-radius: 3px;">
+                        {{  '%g' % (session['Rating']/2) if session['Rating'] else 'N/A' }} ⭐
                     </span>
                     {% endif %}
                 </div>
@@ -45,5 +53,64 @@
         {% endfor %}
         {% endif %}
     </div>
+
+    <div class="modal fade" id="rateCourseModal" tabindex="-1" aria-labelledby="rateCourseModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="ratingModalTitle">Rate</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="rating" class="form-label">Rating</label>
+                <input class="form-control" type="number" id="rating" name="quantity" min="1" max="5" placeholder="1-5">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" onclick="submitRating()">Submit Rating</button>
+            </div>
+          </div>
+        </div>
+      </div>
 </div>
+
+<script>
+    course_id = {{ course['ID'] }};
+
+    function ratingClicked(sessionId) {
+        document.getElementById('ratingModalTitle').innerText = sessionId == 0 ? "Rate Course" : "Rate Session"
+        document.getElementById('rating').value = "";
+        window.ratingSessionId = sessionId;
+    }
+
+    async function submitRating() {
+        const rating = document.getElementById('rating').value;
+        if (!rating) return;
+        
+        if (window.ratingSessionId == 0) {
+            await fetch('/api/rate_course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    course_id: course_id,
+                    rating: rating * 2
+                })
+            });
+        } else {
+            await fetch('/api/rate_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: ratingSessionId,
+                    rating: rating * 2
+                })
+            });
+        }
+        location.reload();
+    }
+</script>
 {% endblock %}

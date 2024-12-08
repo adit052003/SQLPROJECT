@@ -184,4 +184,18 @@ def delete_file(id):
     extension = filename.split('.')[-1]
     os.remove(os.path.join(app.config["UPLOAD_FOLDER"], f'{id}.{extension}'))
     
-    
+# **** Ratings ****
+
+def rate_course(course_id, user_id, rating):
+    old_rating = fetchone("SELECT * FROM CourseRatings WHERE UserID=%s AND CourseID=%s", (user_id, course_id))
+    if old_rating:
+        executeCommit("UPDATE CourseRatings SET Rating=%s WHERE UserID=%s AND CourseID=%s", (rating, user_id, course_id))
+    else:
+        executeCommit("INSERT INTO CourseRatings (UserID, CourseID, Rating) VALUES (%s, %s, %s)", (user_id, course_id, rating))
+
+def rate_session(session_id, user_id, rating):
+    old_rating = fetchone("SELECT * FROM SessionRatings WHERE UserID=%s AND SessionID=%s", (user_id, session_id))
+    if old_rating:
+        executeCommit("UPDATE SessionRatings SET Rating=%s WHERE UserID=%s AND SessionID=%s", (rating, user_id, session_id))
+    else:
+        executeCommit("INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (%s, %s, %s)", (user_id, session_id, rating))

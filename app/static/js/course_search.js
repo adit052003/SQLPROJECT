@@ -34,11 +34,10 @@ function generateCourseElement(course) {
             </span>
             
             ${course['Rating'] == null ? "" : `
-            <!-- Rating in the top-right corner -->
             <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
                 ${course['Rating'] / 2} ⭐
-            </span>`
-            }
+            </span>
+            `}
             
             <!-- Title at the bottom over the image -->
             <div class="img-text bottom-0 start-0 end-0">
