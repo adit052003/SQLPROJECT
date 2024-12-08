@@ -27,10 +27,12 @@ MYSQL_DB = 'stoodle'
 MYSQL_USER = '[USERNAME]'
 MYSQL_PASSWORD = '[PASSWORD]'
 SECRET_KEY = '[SECRET_KEY]'
+UPLOAD_FOLDER = r'[Full path to file folder]'
 ```
 
 USERNAME and PASSWORD are those used when setting up a database
 SECRET_KEY is any sequence of characters and can be generated with `python -c 'import secrets; print(secrets.token_hex())'`
+UPLOAD_FOLDER is where you would like uploaded files to be stored. A folder named `file_uploads` in the project root is recommended.
 
 ### Running
 

@@ -124,15 +124,16 @@ def get_participant_count(course_id):
     return fetchone(sql, course_id)['pcount']
 
 def get_joined_courses(user_id):
-     # SQL query to fetch the courses the user has joined
     sql = """
-    SELECT Courses.ID, Courses.Title, Courses.Code, JoinedCourses.JoinDate, JoinedCourses.ViewDate
-    FROM JoinedCourses
-    JOIN Courses ON JoinedCourses.CourseID = Courses.ID
-    WHERE JoinedCourses.UserID = %s
-    ORDER BY JoinedCourses.JoinDate DESC
+    SELECT C.ID, C.Title, C.Code, C.ImageID, J.JoinDate, J.ViewDate
+    FROM JoinedCourses J
+    JOIN Courses C ON J.CourseID = C.ID
+    WHERE J.UserID = %s
+    ORDER BY J.ViewDate DESC
     """
-    return fetchall(sql, user_id)
+    courses = fetchall(sql, user_id)
+    for course in courses: course['ImageURL'] = f'/files/{course["ImageID"]}' if course["ImageID"] else None
+    return courses
 
 # **** Course Sections ****
 
