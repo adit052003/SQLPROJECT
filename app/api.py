@@ -1,4 +1,4 @@
-from flask import Blueprint, request, send_from_directory
+from flask import Blueprint, request, send_from_directory, redirect, url_for
 from flask import current_app as app
 from flask_login import current_user
 from .db_manager import fetchone
@@ -13,6 +13,16 @@ api = Blueprint("api", __name__)
 def course_list():
     courses = queries.get_courses_full_details()
     return courses
+
+@api.route("/api/create_course", methods=['POST'])
+def create_course():
+    if 'title' not in request.form: return { 'reason': "ERROR: Course Title Missing" }, 400
+    if 'code' not in request.form: return { 'reason': "ERROR: Course Code Missing" }, 400
+    if 'description' not in request.form: return { 'reason': "ERROR: Course Description Missing" }, 400
+    
+    course_id = queries.add_course(request.form['title'], request.form['code'], request.form['description'])
+    queries.join_course(course_id, current_user.id)
+    return redirect(url_for('views.view_course', course_id=course_id))
 
 @api.route("/api/edit_course", methods=['POST'])
 def edit_course():

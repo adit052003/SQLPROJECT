@@ -33,6 +33,7 @@ def get_rating(course_id):
 def add_course(course_title, course_code, course_description):
     sql = "INSERT INTO courses (Title, Code, Description) VALUES (%s, %s, %s)"
     executeCommit(sql, (course_title, course_code, course_description))
+    return fetchone("SELECT LAST_INSERT_ID() AS ID")['ID'] 
     
 def edit_course(course_id, title, code, description):
     executeCommit(

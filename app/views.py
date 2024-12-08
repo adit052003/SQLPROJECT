@@ -19,17 +19,9 @@ def dashboard():
 def courses():
     return render_template("courses.html")
 
-@blueprint.route("/create_course", methods=['GET', 'POST'])
+@blueprint.route("/create_course")
 @login_required
 def create_course():
-    if request.method == 'POST':
-        print("Form Submitted!")
-        course_title = request.form['Title']
-        course_code = request.form['Code']
-        course_description = request.form['Description']
-        print(f"Title: {course_title}, Code: {course_code}, Description: {course_description}")
-        queries.add_course(course_title, course_code, course_description)
-        return redirect("/dashboard")
     return render_template("add_course.html")
 
 @blueprint.route("/course/<course_id>")
