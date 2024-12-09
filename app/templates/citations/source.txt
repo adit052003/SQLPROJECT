@@ -1,0 +1,9 @@
+this file has citations for the index.html page.
+
+the styling for how make a responsive hero image, how to use border, padding styles were learnt from chatgpt
+
+the hero image was taken from 'wallpapers.com' website. link to the image: https://wallpapers.com/images/hd/studying-with-essential-oil-mo37fwxjaqgemq0r.jpg
+
+i had doubts as how to do the footer so i referred to https://www.basedash.com/blog/create-effective-html-footer for footer.
+
+---vizal.
