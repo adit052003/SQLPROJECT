@@ -26,7 +26,7 @@ def dashboard():
     """
     try:
         user_id = current_user.id
-        courses = fetchall(sql, (user_id,))
+        courses = fetchall(sql, (user_id,), as_dict=False)
     except Exception as e:
         flash("An error occurred while fetching your courses.", "danger")
         courses = []
@@ -61,8 +61,7 @@ def view_course(course_id, page_id=None):
     if not course:
         flash("Course does not exist.", "danger")
         return redirect(url_for("views.dashboard"))
-
-    # Fetch all pages for navigation
+    
     sql_pages = """
     SELECT ID as page_id, Title as title
     FROM Pages
@@ -90,6 +89,8 @@ def view_course(course_id, page_id=None):
         )
 
     # Render about page if no specific page is requested
+    print("Sections passed to template:", sections)
+
     return render_about_page(course, sections)
 
 @blueprint.route("/course/<course_id>/create_page", methods=["GET", "POST"])
