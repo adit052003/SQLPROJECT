@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, flash, render_template, url_for
+from flask import (
+    Blueprint, render_template, request, redirect, 
+    flash, url_for
+)
 from flask_login import login_required, current_user
 from . import queries
 
@@ -13,15 +16,24 @@ def home():
 def dashboard():
     courses = queries.get_joined_courses(current_user.id)
     return render_template("dashboard.html", name=current_user.first_name, courses=courses)
-    
+
 @blueprint.route("/courses")
 @login_required
 def courses():
     return render_template("courses.html")
 
-@blueprint.route("/create_course")
+# Create a course
+@blueprint.route("/create_course", methods=['GET', 'POST'])
 @login_required
 def create_course():
+    if request.method == 'POST':
+        course_title = request.form['Title']
+        course_code = request.form['Code']
+        course_description = request.form['Description']
+        sql = "INSERT INTO courses (Title, Code, Description) VALUES (%s, %s, %s)"
+        executeCommit(sql, (course_title, course_code, course_description))
+        flash("Course created successfully!", "success")
+        return redirect(url_for("views.dashboard"))
     return render_template("add_course.html")
 
 @blueprint.route("/course/<course_id>")
@@ -36,9 +48,79 @@ def view_course(course_id=None, page_id=None):
     
     sections = queries.get_course_sections(course_id)
     if page_id == None: return render_about_page(course, sections)
+    # Fetch specific page details
+    sql = "SELECT ID, Title, Content FROM Pages WHERE CourseID = %s AND ID = %s"
+    page_data = fetchone(sql, (course_id, page_id))
+    if not page_data:
+        flash("Page not found.", "danger")
+        return redirect(url_for("views.view_course", course_id=course_id))
     
+    # Map SQL data to dictionary
+    page = {"ID": page_data[0], "Title": page_data[1], "Content": page_data[2]}
+    return render_template(
+        "view_page.html",
+        course=course,
+        page=page,
+        sections=sections,
+        joined=current_user.hasJoinedCourse(course_id),
+    )
+
+@blueprint.route("/course/<course_id>/create_page", methods=["GET", "POST"])
+@login_required
+def create_page(course_id):
+    if request.method == "POST":
+        title = request.form.get("title")
+        section_index = request.form.get("section_index")
+        content = request.form.get("content")
+
+        if not title or not section_index or not content:
+            flash("All fields are required.", "danger")
+            return redirect(url_for("views.create_page", course_id=course_id))
+
+        sql = """
+        INSERT INTO Pages (CourseID, Title, SectionIndex, Content)
+        VALUES (%s, %s, %s, %s)
+        """
+        executeCommit(sql, (course_id, title, section_index, content))
+        flash("Page created successfully!", "success")
+
+        return redirect(url_for("views.view_course", course_id=course_id))
     
-    return render_template("view_course.html", course=course, sections=sections, page_id=page_id, joined=current_user.hasJoinedCourse(course_id))
+    return render_template("create_page.html", course_id=course_id)
+
+@blueprint.route("/course/<course_id>/<page_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_page(course_id, page_id):
+    sql_fetch = "SELECT ID, Title, SectionIndex, Content FROM Pages WHERE ID = %s AND CourseID = %s"
+    page_data = fetchone(sql_fetch, (page_id, course_id))
+    if not page_data:
+        flash("Page not found or does not belong to this course.", "danger")
+        return redirect(url_for("views.view_course", course_id=course_id))
+    
+    page = {"ID": page_data[0], "Title": page_data[1], "SectionIndex": page_data[2], "Content": page_data[3]}
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        section_index = request.form.get("section_index")
+        content = request.form.get("content")
+        sql_update = """
+        UPDATE Pages 
+        SET Title = %s, SectionIndex = %s, Content = %s
+        WHERE ID = %s AND CourseID = %s
+        """
+        executeCommit(sql_update, (title, section_index, content, page_id, course_id))
+        flash("Page updated successfully!", "success")
+        return redirect(url_for("views.view_course", course_id=course_id, page_id=page_id))
+
+    return render_template("edit_page.html", page=page)
+
+@blueprint.route("/course/<course_id>/<page_id>/delete", methods=["POST"])
+@login_required
+def delete_page(course_id, page_id):
+    sql_delete = "DELETE FROM Pages WHERE ID = %s AND CourseID = %s"
+    executeCommit(sql_delete, (page_id, course_id))
+    flash("Page deleted successfully!", "success")
+    return redirect(url_for("views.view_course", course_id=course_id))
 
 def render_about_page(course, sections):
     participants = queries.get_participant_count(course['ID'])
@@ -47,7 +129,7 @@ def render_about_page(course, sections):
     return render_template(
         "course_about.html", 
         course=course, 
-        sections = sections,
+        sections=sections,
         participants=participants, 
         rating=f"{rating/2}".rstrip('.0'), 
         joined=current_user.hasJoinedCourse(course['ID']),

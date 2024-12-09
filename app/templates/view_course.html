@@ -13,27 +13,35 @@
         {% endif %}
     </div>
 
-    <section class="h-100 d-flex flex-column">
-        <nav class="navbar navbar-expand-lg bg-secondary" style="height: 40px;">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div id="navbarSupportedContent" class="collapse navbar-collapse">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item"><a class="nav-link text-light" href="{{ url_for('views.view_course', course_id=course['ID']) }}">About</a></li>
-                            {% for section in sections %}
-                            <li class="nav-item"><a class="nav-link text-light" href="{{ url_for('views.view_course', course_id=course['ID'], page_id=section['PageID']) }}">{{ section['Title'] }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+    <!-- Add Page Button -->
+    {% if joined %}
+    <div class="mt-2">
+        <a class="btn btn-success" href="{{ url_for('views.create_page', course_id=course.id) }}">Add Page</a>
+    </div>
+    {% endif %}
 
-        {% block course_content %}{% endblock %}
+    <section class="h-100 d-flex flex-column">
+    <!-- Navigation for Pages -->
+    <nav class="navbar navbar-expand-lg bg-secondary mt-3">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="navbarSupportedContent" class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link text-light" href="{{ url_for('views.view_course', course_id=course['ID']) }}">About</a></li>
+                    {% for section in sections %}
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="{{ url_for('views.view_course', course_id=course['ID'], page_id=section['PageID']) }}">{{ section['Title'] }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </nav>
     </section>
+
+    {% block course_content %}{% endblock %}
 </div>
 
 <script>
@@ -47,7 +55,11 @@
                 course_id: {{ course['ID'] }}
             })
         })
-        .then(response => { if (response.ok) { location.reload(); } else { alert("Could not join course.");} })
+        .then(response => { if (response.ok) { location.reload(); } else { alert("Could not join course."); } });
     }
 </script>
 {% endblock %}
+
+
+
+

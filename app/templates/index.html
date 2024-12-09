@@ -2,14 +2,68 @@
 
 {% block title %}Welcome{% endblock %}
 
-{% block navbar %} {% endblock %}
+{% block navbar %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="/" class="navbar-logo">StudyApp</a>
+        <ul class="navbar-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/courses">Courses</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
 
 {% block content %}
+<header style="background: url('https://wallpapers.com/images/hd/studying-with-essential-oil-mo37fwxjaqgemq0r.jpg') no-repeat center center/cover; height: 700px; color: rgb(255, 0, 0); text-align: center; display: flex; justify-content: center; align-items: center;">
+    <h1 style="font-size: 6em; color: white;">Welcome to Stoodle!</h1>
+</header>
 
-<div class="container">
-    <h1 class="display-4">Welcome to STOODLE</h1>
-    <h3 class="fw-light text-muted">Your Study Hub: By Students, For Students</h3>
-</div>
+<main style="background-color:rgb(227, 227, 227); padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+    <section style="margin-bottom: 50px;">
+        <p style = "color:rgb(43, 53, 97);font-size: 1.5em;">
+            Stoodle is a collaborative platform for students to find and share valuable study resources. 
+            Whether you need notes, assignments, or supplementary learning materials, Stoodle has you covered.
+        </p>
+    </section>
+
+    <section style="margin-bottom: 50px; ">
+        <div style="display: flex; justify-content: center; gap: 25px;">
+            <div style="border: 8px solid #ddd; border-radius: 5px; padding: 20px; max-width: 200px;">
+                <h4>UPLOAD RESOURCES</h4>
+                <p>Share your knowledge by uploading study materials for others.</p>
+            </div>
+            <div style="border: 8px solid #ddd; border-radius: 5px; padding: 20px; max-width: 200px;">
+                <h4>CREATE QUIZZES</h4>
+                <p>create quizes for courses, customize them and make it acessible to all students.</p>
+            </div>
+            <div style="border: 8px solid #ddd; border-radius: 5px; padding: 20px; max-width: 200px;">
+                <h4>RATE COURSES</h4>
+                <p>Rate the courses you have signed up for and it's content .</p>
+            </div>
+            <div style="border: 8px solid #ddd; border-radius: 5px; padding: 20px; max-width: 200px;">
+                <h4>BROWSE COURSES</h4>
+                <p>Find resources categorized by course and topic.</p>
+            </div>
+            <div style="border: 8px solid #ddd; border-radius: 5px; padding: 20px; max-width: 200px;">
+                <h4>TRACK PROGRESS</h4>
+                <p>Access reports and stay organized in your studies.</p>
+            </div>
+        </div>
+        <div>
+            <h2 style = "color:rgb(25, 143, 92); margin-top: 50px;">Login to access the key features!</h2>
+        </div>
+    </section>
 
 
+</main>
+<footer style="background-color: #333; color: white; padding: 20px; text-align: center; margin-top: 50px;">
+    <p>&copy; 2024 Stoodle. All rights reserved.</p>
+    <nav>
+        <a href="/about" style="color: #bbb; text-decoration: none; margin: 0 10px;">About Us</a>
+        <a href="/contact" style="color: #bbb; text-decoration: none; margin: 0 10px;">Contact</a>
+        <a href="/privacy" style="color: #bbb; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+    </nav>
+</footer>
 {% endblock %}
