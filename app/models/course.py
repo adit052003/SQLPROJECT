@@ -20,28 +20,42 @@ class Course:
         return fetchone(sql, (self.id,))[0]
     
     def getRating(self):
-        sql = '''SELECT AVG(Rating) From CourseRatings WHERE CourseID = %s'''
+        sql = '''SELECT AVG(Rating) FROM CourseRatings WHERE CourseID = %s'''
         return fetchone(sql, (self.id,))[0]
         
+    @staticmethod
     def findMatchOR(keys, values):
         sql = "SELECT `Id`, `Title`, `Code`, `Description`, ImageID FROM Courses WHERE "
         where = ' OR '.join(map(lambda k: f"`{k}` = %s", keys))
         print(sql + where)
         result = fetchone(sql + where, values)
-        if not result: return None
+        if not result:
+            return None
         return Course(*result)
 
+    @staticmethod
     def fetchAll():
         sql = """
         SELECT `ID`, `Title`, `Code`, `Description`, ImageID FROM Courses;
         """
-        result = fetchall(sql)
-        if not result: return None
-        return [Course(*row) for row in result]
+        result = fetchall(sql, as_dict=True)  # Fetch as dictionaries
+        if not result:
+            return None
+        return [
+            Course(
+                id=row['ID'],
+                title=row['Title'],
+                code=row['Code'],
+                description=row['Description'],
+                image_id=row['ImageID']
+            ) for row in result
+        ]
         
+    @staticmethod
     def fetchAllRatings():
         sql = """
-        SELECT C.ID, C.Title, Code, `Description`, ImageID, Rating, IFNULL(Registrations, 0) FROM Courses C
+        SELECT C.ID, C.Title, C.Code, C.Description, C.ImageID, R.Rating, J.Registrations
+        FROM Courses C
         LEFT JOIN (
             SELECT CourseID, AVG(Rating) AS Rating
             FROM CourseRatings
@@ -53,23 +67,45 @@ class Course:
             GROUP BY CourseID
         ) J ON J.CourseID = C.ID
         """
-        result = fetchall(sql)
-        if not result: return None
-        return [Course(*row) for row in result]
+        result = fetchall(sql, as_dict=True)  # Fetch as dictionaries
+        if not result:
+            return None
+        return [
+            Course(
+                id=row['ID'],
+                title=row['Title'],
+                code=row['Code'],
+                description=row['Description'],
+                image_id=row['ImageID'],
+                rating=row.get('Rating'),
+                registrations=row.get('Registrations')
+            ) for row in result
+        ]
     
+    @staticmethod
     def fetchJoinedCourses(user_id):
         sql = """
-        SELECT Courses.ID, Courses.Title, Courses.Code, Courses.Description, Courses.ImageID, JoinedCourses.JoinDate, JoinedCourses.ViewDate
+        SELECT Courses.ID, Courses.Title, Courses.Code, Courses.Description, Courses.ImageID, 
+               JoinedCourses.JoinDate, JoinedCourses.ViewDate
         FROM JoinedCourses
         JOIN Courses ON JoinedCourses.CourseID = Courses.ID
         WHERE JoinedCourses.UserID = %s
         ORDER BY JoinedCourses.JoinDate DESC
         """
-        courses = fetchall(sql, (user_id,))
-        return [Course(*c) for c in courses]
+        courses = fetchall(sql, (user_id,), as_dict=True)  # Fetch as dictionaries
+        return [
+            Course(
+                id=row['ID'],
+                title=row['Title'],
+                code=row['Code'],
+                description=row['Description'],
+                image_id=row['ImageID']
+            ) for row in courses
+        ]
     
     def get_img_url(self):
-        if not self.image_id: return None
+        if not self.image_id:
+            return None
         return f'/files/{self.image_id}'
     
     def serialize(self):

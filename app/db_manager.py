@@ -31,10 +31,16 @@ def fetchall(sql, args=()):
         cursor.execute(sql, args)
         return cursor.fetchall()
 
-    
-def fetchall(sql, args=None):
+def fetchall(sql, args=None, as_dict=True):
     with get_db().cursor() as cursor:
         cursor.execute(sql, args)
-        return cursor.fetchall()
+        if as_dict:
+            column_names = [desc[0] for desc in cursor.description]
+            return [dict(zip(column_names, row)) for row in cursor.fetchall()]
+        else:
+            return cursor.fetchall()
+
+
+
         
     
