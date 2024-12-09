@@ -272,3 +272,10 @@ def get_page_content():
     data = request.json
     if 'page_id' not in data: return { 'reason': "Session ID Missing" }, 400
     return queries.get_page_content(data['page_id'])
+
+@api.route("/api/get_course_page_titles", methods=['POST'])
+def get_course_page_titles():
+    data = request.json
+    if 'course_id' not in data: return { 'reason': "Course ID Missing" }, 400
+    if not queries.get_course(data['course_id']): return { 'reason': "Course ID Invalid" }, 400
+    return queries.get_course_page_titles(data['course_id'])

@@ -112,6 +112,7 @@ function saveSession(sessionElement) {
         time: sessionElement.querySelector('.time-input').value,
         description: sessionElement.querySelector('.description-input').value
     };
+    if (!sessionData.professor_id || sessionData.section_id == 'select') {return;}
 
     const addr = sessionData.session_id == -1 ? '/api/add_session' : '/api/edit_session';
 
@@ -135,14 +136,17 @@ function professorSelected(select) {
 
 async function saveSections() {
     const sectionElements = document.getElementById('sections').children; 
+    console.log(sectionElements.length)
 
     for (const sectionElement of sectionElements) {
+        console.log("HEY");
         const section_data = {
             course_id: course_id,
             section_id: sectionElement.getAttribute('section-id'),
             title: sectionElement.querySelector('.title-input').value, 
-            page_id: sectionElement.querySelector('.page-input').value,
+            page_id: sectionElement.querySelector('.page-select').value,
         };
+        if (!section_data.page_id || section_data.page_id == 'select') { continue; }
 
         const addr = section_data.section_id == -1 ? '/api/add_section' : '/api/edit_section';
 
@@ -154,6 +158,7 @@ async function saveSections() {
             body: JSON.stringify(section_data)
         })
         .then(response => response.json()).then(response => console.log(response));
+
     }
 
     for (const id of deleted_sections) {
@@ -218,13 +223,18 @@ function addSection(section) {
         <div class="card-body p-2">
             <div class="d-flex justify-content-between">
                 <input type="text" placeholder="Section Name" class="form-control title-input me-2" value="${section['Title'] ?? ""}" autofocus>
-                <input type="text" placeholder="Page ID" class="form-control page-input me-2" value="${section['PageID'] ?? ""}" autofocus>
+                <select class="form-select page-select me-2"">
+                    <option selected value="select">Select Page</option>
+                </select>
                 <button class="btn btn-danger" onclick="deleteSection(this)">X</button>
             </div>
         </div>
     </div>
     `;
-    sections.appendChild(template.content.firstElementChild);
+    const sectionHTML = template.content.firstElementChild;
+    updatePageDropdown(sectionHTML.querySelector('.page-select'));
+    sectionHTML.querySelector('.page-select').value = section['PageID'] ?? 'select';
+    sections.appendChild(sectionHTML);
 }
 
 function deleteSection(button) {
@@ -270,6 +280,24 @@ function updateProfessorDropdown(dropdown) {
     professorSelected(dropdown);
 }
 
+function updatePageDropdown(dropdown) {
+    const current = dropdown.value;
+    dropdown.replaceChildren([]);
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = 'select';
+    defaultOption.innerText = "Select Page";
+    dropdown.appendChild(defaultOption);
+
+    for (const page of pages) {
+        const option = document.createElement('option');
+        option.value = page['ID'];
+        option.innerHTML = `${page['Title']}`;
+        dropdown.appendChild(option);
+    }
+    dropdown.value = current;
+}
+
 function updateProfessorDropdowns() {
     const selects = document.getElementsByClassName('professor-select');
     for (const select of selects) {
@@ -306,6 +334,18 @@ function getSessions() {
             addSession(session);
         }
     });
+}
+
+function getPageTitles() {
+    return fetch('/api/get_course_page_titles', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({course_id: window.course_id})
+    })
+    .then(response => response.json())
+    .then(pages => window.pages = pages);
 }
 
 function getSections() {
@@ -360,6 +400,7 @@ async function initialize() {
 
     await getProfessors();
     await getSessions();
+    await getPageTitles();
     await getSections();
 
     const imageInput = document.getElementById("profilePicture");

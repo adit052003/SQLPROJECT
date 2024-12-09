@@ -209,6 +209,9 @@ def rate_session(session_id, user_id, rating):
 def get_page(course_id, page_id):
     return fetchone("SELECT * FROM Pages WHERE CourseID=%s AND ID=%s", (course_id, page_id))
 
+def get_course_page_titles(course_id):
+    return fetchall("SELECT ID, Title FROM Pages WHERE CourseID=%s", course_id)
+
 def get_page_content(page_id):
     return fetchone("SELECT Content FROM Pages WHERE ID=%s", page_id)['Content']
 
