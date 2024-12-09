@@ -9,16 +9,12 @@
         {% if not joined %}
         <button class="btn btn-primary" onclick="joinCourse()">Join Course</button>
         {% else %}
-        <a class="btn btn-primary" href="{{ url_for('views.edit_course', course_id=course['ID']) }}">Edit Course</a>
+        <div>
+            <a class="btn btn-primary" href="{{ url_for('views.edit_course', course_id=course['ID']) }}">Edit Course</a>
+            <a class="btn btn-success" href="{{ url_for('views.create_page', course_id=course['ID']) }}">Add Page</a>
+        </div>
         {% endif %}
     </div>
-
-    <!-- Add Page Button -->
-    {% if joined %}
-    <div class="mt-2">
-        <a class="btn btn-success" href="{{ url_for('views.create_page', course_id=course.id) }}">Add Page</a>
-    </div>
-    {% endif %}
 
     <section class="h-100 d-flex flex-column">
     <!-- Navigation for Pages -->

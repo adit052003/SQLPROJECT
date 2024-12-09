@@ -203,3 +203,22 @@ def rate_session(session_id, user_id, rating):
         executeCommit("UPDATE SessionRatings SET Rating=%s WHERE UserID=%s AND SessionID=%s", (rating, user_id, session_id))
     else:
         executeCommit("INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (%s, %s, %s)", (user_id, session_id, rating))
+        
+# **** Pages ****
+
+def get_page(course_id, page_id):
+    return fetchone("SELECT * FROM Pages WHERE CourseID=%s AND ID=%s", (course_id, page_id))
+
+def get_page_content(page_id):
+    return fetchone("SELECT Content FROM Pages WHERE ID=%s", page_id)['Content']
+
+def add_page(course_id, title, content):
+    executeCommit("INSERT INTO Pages (CourseID, Title, Content) VALUES (%s, %s, %s)", (course_id, title, content))
+    return fetchone("SELECT LAST_INSERT_ID() AS ID")['ID']
+
+def edit_page(page_id, title, content):
+    executeCommit("UPDATE Pages SET Title=%s, Content=%s WHERE ID=%s", (title, content, page_id))
+    
+def delete_page(course_id, page_id):
+    executeCommit("DELETE FROM Pages WHERE CourseID=%s AND ID=%s", (course_id, page_id))
+    

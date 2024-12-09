@@ -265,3 +265,10 @@ def rate_session():
     
     queries.rate_session(session['ID'], current_user.id, rating)
     return {}
+
+# **** Pages ****
+@api.route("/api/get_page_content", methods=['POST'])
+def get_page_content():
+    data = request.json
+    if 'page_id' not in data: return { 'reason': "Session ID Missing" }, 400
+    return queries.get_page_content(data['page_id'])
