@@ -1,0 +1,75 @@
+{% extends "view_course.html" %}
+
+{% block course_content %}
+
+<div>
+    <div class="container-fluid h-100">
+        <h3 class="display-6">Search Pages</h3>
+        <input type="text" id="search-bar" class="form-control col-12 col-md-6 col-lg-4" placeholder="Search">
+        <div class="mt-3" id="page-list">
+            <div class="card p-2">
+                <h3 class="m-0">Test</h3>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+<script>
+    course_id = {{ course['ID'] }};
+
+    function listPages(pages) {
+        const pageList = document.getElementById('page-list');
+        pageList.replaceChildren([])
+        for (const page of pages) {
+            pageList.appendChild(generatePageElement(page));
+        }
+    }
+
+function generatePageElement(page) {
+    const template = document.createElement('template');
+    template.innerHTML = `
+    <div>
+    <a href="/course/${course_id}/${page['ID']}">
+    <div class="card p-2 mb-2">
+        <h5 class="m-0 text-decoration-none">${page['Title']}</h5>
+    </div>
+    </a>
+    </div>
+    `;
+    return template.content.firstElementChild;
+}
+
+
+function filterPages() {
+    if (pages == null) return;
+    const searchBar = document.getElementById('search-bar');
+    const input = searchBar.value.toLowerCase();
+    const filteredPages = pages.filter(
+        page => page['Title'].toLowerCase().includes(input)
+    );
+    listPages(filteredPages);
+}
+
+    function getPages() {
+        return fetch('/api/get_course_page_titles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({course_id: course_id})
+        })
+        .then(response => response.json()).then(pages => window.pages = pages);
+    }
+
+    async function initialize() {
+        await getPages();
+        listPages(pages);
+
+        const searchBar = document.getElementById('search-bar');
+        searchBar.oninput = filterPages;
+    }
+
+    initialize();
+    
+</script>
+{% endblock %}

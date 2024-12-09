@@ -32,6 +32,15 @@
                     </li>
                     {% endfor %}
                 </ul>
+                <div class="d-flex">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a href="{{ url_for('views.search_course', course_id=course['ID']) }}" class="btn btn-success">
+                                Search Course
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

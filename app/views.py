@@ -122,3 +122,10 @@ def edit_course(course_id=None):
     if course == None: return "Course does not exist"
     course['ImageURL'] = f'/files/{course["ImageID"]}' if course['ImageID'] else None
     return render_template("edit_course.html", course=course)
+
+@blueprint.route("/course/<course_id>/search")
+@login_required
+def search_course(course_id):
+    course = queries.get_course(course_id)
+    if course == None: return redirect(url_for('views.dashboard'))
+    return render_template("search_course.html", course=course)
