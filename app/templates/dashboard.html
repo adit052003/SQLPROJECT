@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container my-4">
     <div class="mb-2 d-flex justify-content-between align-items-center">
-        <h2 class="m-0">Dashboard</h5>
+        <h2 class="m-0">Dashboard</h2>
         <a class="btn btn-primary" href="{{ url_for('views.create_course') }}">Create Course</a>
     </div>
     <h4>Your Courses</h4>
@@ -13,7 +13,10 @@
             {% for course in courses %}
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm">
-                        <img src="{{ url_for('static', filename='images/icon.svg') }}" class="card-img-top" alt="Course Image">
+                        <img 
+                            src="{{ course[5] if course[5] else 'https://placehold.co/600x400?text=No+Image' }}" 
+                            class="card-img-top" 
+                            alt="Course Image">
                         <div class="card-body">
                             <h5 class="card-title">{{ course[1] }}</h5>
                             <p class="card-text">{{ course[2] }}</p>
@@ -32,6 +35,8 @@
     </div>
 </div>
 {% endblock %}
+
+
 
 
 
