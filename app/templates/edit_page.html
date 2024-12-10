@@ -25,15 +25,49 @@
 </div>
 
 <script>
-    const contentField = document.getElementById("content");
-    const previewDiv = document.getElementById("markdown-preview");
+    const course_id = {{ course_id }};
 
-    contentField.addEventListener("input", () => {
-        const content = contentField.value;
-        previewDiv.innerHTML = marked.parse(content); // Use the "marked.js" library for Markdown rendering
-    });
+    function getPages() {
+        return fetch('/api/get_course_page_titles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({course_id: course_id})
+        })
+        .then(response => response.json()).then(pages => window.pages = pages);
+    }
 
-    previewDiv.innerHTML = marked.parse(contentField.value);
+    function preprocessMarkdown(markdown) {
+        return markdown.replace(/\[\[([^\|\]]+)\s*(?:\|\s*([^\]]+))?\]\]/g, (match, labelOrTitle, title) => {
+            if (labelOrTitle.startsWith("https://www.youtube.com/watch?v=")) {
+                const youtubeId = labelOrTitle.split("v=")[1];
+                return youtubeId
+                    ? `<iframe width="560" height="315" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n`
+                    : match;
+            }
+            const label = labelOrTitle.trim();
+            const resolvedTitle = title ? title.trim() : labelOrTitle.trim();
+            const page = pages.find(o => o.Title === resolvedTitle);
+            return page ? `[${label}](/course/${course_id}/${page.ID})` : match;
+        });
+    }
+
+    async function initialize() {
+        await getPages();
+
+        const contentField = document.getElementById("content");
+        const previewDiv = document.getElementById("markdown-preview");
+
+        contentField.addEventListener("input", () => {
+            const content = contentField.value;
+            previewDiv.innerHTML = marked.parse(preprocessMarkdown(content)); // Use the "marked.js" library for Markdown rendering
+        });
+
+        previewDiv.innerHTML = marked.parse(preprocessMarkdown(contentField.value));
+    }
+
+    initialize();
 </script>
 {% endblock %}
 
