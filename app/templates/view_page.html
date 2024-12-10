@@ -1,27 +1,76 @@
-{% extends "base.html" %}
+{% extends "view_course.html" %}
 
 {% block title %}{{ page.Title }}{% endblock %}
 
-{% block content %}
+{% block course_content %}
 <div class="container my-4">
     <!-- Display Page Title -->
-    <h1>{{ page.Title }}</h1>
+    <h1>{{ page['Title'] }}</h1>
 
     <!-- Display Page Content -->
-    <div class="mt-3">
-        <p>{{ page.Content | safe }}</p> <!-- Safely render HTML content -->
+    <div id="display" class="mt-3">
     </div>
 
     <!-- Edit/Delete Buttons -->
     {% if joined %}
     <div class="mt-4 d-flex gap-2">
-        <a href="{{ url_for('views.edit_page', course_id=course.id, page_id=page.ID) }}" class="btn btn-primary">Edit Page</a>
-        <form action="{{ url_for('views.delete_page', course_id=course.id, page_id=page.ID) }}" method="POST" style="display: inline;">
+        <a href="{{ url_for('views.edit_page', course_id=course['ID'], page_id=page['ID']) }}" class="btn btn-primary">Edit Page</a>
+        <form action="{{ url_for('views.delete_page', course_id=course['ID'], page_id=page['ID']) }}" method="POST" style="display: inline;">
             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this page?');">Delete Page</button>
         </form>
     </div>
     {% endif %}
 </div>
+
+<script>
+    const page_id = {{ page['ID'] }};
+    const course_id = {{ course['ID'] }};
+
+    function getPages() {
+        return fetch('/api/get_course_page_titles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({course_id: course_id})
+        })
+        .then(response => response.json()).then(pages => window.pages = pages);
+    }
+
+    function preprocessMarkdown(markdown) {
+        return markdown.replace(/\[\[([^\|\]]+)\s*(?:\|\s*([^\]]+))?\]\]/g, (match, labelOrTitle, title) => {
+            if (labelOrTitle.startsWith("https://www.youtube.com/watch?v=")) {
+                const youtubeId = labelOrTitle.split("v=")[1];
+                return youtubeId
+                    ? `<iframe width="560" height="315" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n`
+                    : match;
+            }
+            const label = labelOrTitle.trim();
+            const resolvedTitle = title ? title.trim() : labelOrTitle.trim();
+            const page = pages.find(o => o.Title === resolvedTitle);
+            return page ? `[${label}](/course/${course_id}/${page.ID})` : match;
+        });
+    }
+
+    async function fillContent() {
+        await getPages();
+        const page_content = await fetch('/api/get_page_content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                page_id: page_id
+            })
+        })
+        .then(response => { if (response.ok) { return response.text() } else { alert("Could not get course content");} });
+        const display = document.getElementById('display');
+        display.innerHTML = marked.parse(preprocessMarkdown(page_content));
+    }
+
+    fillContent();
+    
+</script>
 {% endblock %}
 
 

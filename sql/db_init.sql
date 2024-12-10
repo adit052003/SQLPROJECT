@@ -51,16 +51,6 @@ CREATE TABLE Sessions (
         ON DELETE CASCADE
 );
 
-CREATE TABLE CourseSections(
-    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
-    CourseID INTEGER NOT NULL,
-    Title VARCHAR(256) nOT NULL,
-    PageID INTEGER NOT NULL,
-    FOREIGN KEY (CourseID) REFERENCES Courses(ID)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-);
-
 CREATE TABLE JoinedCourses (
 	UserID INTEGER NOT NULL,
     CourseID INTEGER NOT NULL,
@@ -105,14 +95,25 @@ CREATE TABLE SessionRatings (
 CREATE TABLE Pages (
     ID INT AUTO_INCREMENT PRIMARY KEY,      
     CourseID INT NOT NULL,                   
-    Title VARCHAR(255) NOT NULL,             
-    SectionIndex INT NOT NULL,               
+    Title VARCHAR(255) NOT NULL,            
     Content TEXT,                            
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
     FOREIGN KEY (CourseID) REFERENCES Courses(ID) ON DELETE CASCADE
 );
 
+CREATE TABLE CourseSections(
+    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    CourseID INTEGER NOT NULL,
+    Title VARCHAR(256) nOT NULL,
+    PageID INTEGER NOT NULL,
+    FOREIGN KEY (CourseID) REFERENCES Courses(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FOREIGN KEY (PageID) REFERENCES Pages(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
 
 -- Sample Data
 
@@ -138,10 +139,6 @@ INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroo
 INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (6, 2, "Spring 2024 A", STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 208", "MW 12:00 - 1:15 PM");
 INSERT INTO Sessions (CourseID, ProfessorID, Title, StartDate, EndDate, Classroom, Time) VALUES (6, 2, "Spring 2024 B", STR_TO_DATE('January 10 2024', '%M %d %Y'), STR_TO_DATE('April 17 2024', '%M %d %Y'), "CANIL 218", "WF 3:00 - 4:15 PM");
 
-INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 1", 1);
-INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 2", 2);
-INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 3", 3);
-
 INSERT INTO JoinedCourses (UserID, CourseID, PinIndex) VALUES (1, 1, 1);
 INSERT INTO JoinedCourses (UserID, CourseID, PinIndex) VALUES (1, 5, 2);
 INSERT INTO JoinedCourses (UserID, CourseID) VALUES (1, 2);
@@ -156,10 +153,12 @@ INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (1, 1, 10);
 INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (1, 2, 7);
 INSERT INTO SessionRatings (UserID, SessionID, Rating) VALUES (1, 3, 10);
 
-INSERT INTO Pages (CourseID, Title, SectionIndex, Content)
+INSERT INTO Pages (CourseID, Title, Content)
 VALUES
-    (1, 'Introduction to Python', 1, 'This is an introduction to Python programming.'),
-    (1, 'Data Types and Variables', 2, 'Learn about data types and variables in Python.'),
-    (2, 'Course Overview', 1, 'Welcome to the advanced mathematics course.'),
-    (2, 'Functions and Graphs', 2, 'An introduction to mathematical functions and graphs.');
+    (1, 'Introduction to Python', 'This is an introduction to Python programming.'),
+    (1, 'Data Types and Variables', 'Learn about data types and variables in Python.'),
+    (2, 'Course Overview', 'Welcome to the advanced mathematics course.'),
+    (2, 'Functions and Graphs', 'An introduction to mathematical functions and graphs.');
 
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 1", 1);
+INSERT INTO CourseSections (CourseID, Title, PageID) VALUES (1, "Unit 2", 2);

@@ -5,21 +5,20 @@
 {% block content %}
 <div class="container">
     <h1 class="display-4">Create Course!</h1>
-    <form method="POST" action="/create_course" class="border p-4 rounded shadow-sm bg-light">
+    <form method="POST" action="/api/create_course" class="border p-4 rounded shadow-sm bg-light">
         <div class="mb-3">
-            <input type="text" name="Title" placeholder="course title" class="form-control" required >
+            <input type="text" name="title" placeholder="Title" class="form-control" required >
         </div>
         <div class="mb-3">
-            <input type="text" name="Code" placeholder="course code" class="form-control" required >
+            <input type="text" name="code" placeholder="Code" class="form-control" required >
         </div>
         <div class="mb-3">
-            <textarea id="course_description" name="Description" placeholder="course description" class="form-control" rows="5" required></textarea>
+            <textarea id="course_description" name="description" placeholder="Description" class="form-control" rows="5" required></textarea>
         </div>
         <div></div>
         <div class="mb-3">
-            <button type="submit" class="btn btn-primary w-500">create course</button>
+            <button type="submit" class="btn btn-primary w-500">Create course</button>
             <input type="button" class = "btn btn-secondary" onclick="window.location.href='/dashboard'" value="Cancel">
-
         </div>
     </form>
 </div>

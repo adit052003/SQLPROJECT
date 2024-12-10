@@ -1,21 +1,73 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Edit Page</h1>
-<form method="POST">
-    <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" id="title" name="title" class="form-control" value="{{ page.Title }}" required>
+<div class="container">
+    <h1 class="display-4">Edit Page</h1>
+    <form class="border p-4 rounded shadow-sm bg-light mb-4" method="POST" action="{{ url_for('views.edit_page_post', course_id=course_id, page_id=page['ID']) }}">
+        <div class="form-group mb-2">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ page['Title'] }}" required>
+        </div>
+        <div class="form-group mb-2">
+            <label for="content">Content</label>
+            <textarea id="content" name="content" class="form-control" required>{{ page['Content'] }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a class="btn btn-secondary" href="{{ url_for('views.view_course', course_id=course_id, page_id=page['ID']) }}">Cancel</a>
+    </form>
+
+    <!-- Markdown Preview -->
+    <div>
+        <h5 class="display-6">Content Preview</h5>
+        <div id="markdown-preview" class="border p-4 rounded shadow-sm bg-light">
+        </div>
     </div>
-    <div class="form-group">
-        <label for="section_index">Section Index</label>
-        <input type="number" id="section_index" name="section_index" class="form-control" value="{{ page.SectionIndex }}" required>
-    </div>
-    <div class="form-group">
-        <label for="content">Content</label>
-        <textarea id="content" name="content" class="form-control" required>{{ page.Content }}</textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
+</div>
+
+<script>
+    const course_id = {{ course_id }};
+
+    function getPages() {
+        return fetch('/api/get_course_page_titles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({course_id: course_id})
+        })
+        .then(response => response.json()).then(pages => window.pages = pages);
+    }
+
+    function preprocessMarkdown(markdown) {
+        return markdown.replace(/\[\[([^\|\]]+)\s*(?:\|\s*([^\]]+))?\]\]/g, (match, labelOrTitle, title) => {
+            if (labelOrTitle.startsWith("https://www.youtube.com/watch?v=")) {
+                const youtubeId = labelOrTitle.split("v=")[1];
+                return youtubeId
+                    ? `<iframe width="560" height="315" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n`
+                    : match;
+            }
+            const label = labelOrTitle.trim();
+            const resolvedTitle = title ? title.trim() : labelOrTitle.trim();
+            const page = pages.find(o => o.Title === resolvedTitle);
+            return page ? `[${label}](/course/${course_id}/${page.ID})` : match;
+        });
+    }
+
+    async function initialize() {
+        await getPages();
+
+        const contentField = document.getElementById("content");
+        const previewDiv = document.getElementById("markdown-preview");
+
+        contentField.addEventListener("input", () => {
+            const content = contentField.value;
+            previewDiv.innerHTML = marked.parse(preprocessMarkdown(content)); // Use the "marked.js" library for Markdown rendering
+        });
+
+        previewDiv.innerHTML = marked.parse(preprocessMarkdown(contentField.value));
+    }
+
+    initialize();
+</script>
 {% endblock %}
 

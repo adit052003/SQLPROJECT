@@ -1,25 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}{{ course.title }}{% endblock %}
+{% block title %}{{ course['Title'] }}{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="mt-2 mb-2 d-flex justify-content-between align-items-center">
-        <h3>{{ course.title }}</h3>
+        <h3>{{ course['Title'] }}</h3>
         {% if not joined %}
         <button class="btn btn-primary" onclick="joinCourse()">Join Course</button>
         {% else %}
-        <a class="btn btn-primary" href="{{ url_for('views.edit_course', course_id=course.id) }}">Edit Course</a>
+        <div>
+            <a class="btn btn-primary" href="{{ url_for('views.edit_course', course_id=course['ID']) }}">Edit Course</a>
+            <a class="btn btn-success" href="{{ url_for('views.create_page', course_id=course['ID']) }}">Add Page</a>
+        </div>
         {% endif %}
     </div>
 
-    <!-- Add Page Button -->
-    {% if joined %}
-    <div class="mt-2">
-        <a class="btn btn-success" href="{{ url_for('views.create_page', course_id=course.id) }}">Add Page</a>
-    </div>
-    {% endif %}
-
+    <section class="h-100 d-flex flex-column">
     <!-- Navigation for Pages -->
     <nav class="navbar navbar-expand-lg bg-secondary mt-3">
         <div class="container-fluid">
@@ -28,16 +25,26 @@
             </button>
             <div id="navbarSupportedContent" class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.view_course', course_id=course.id) }}">About</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="{{ url_for('views.view_course', course_id=course['ID']) }}">About</a></li>
                     {% for section in sections %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('views.view_course', course_id=course.id, page_id=section.page_id) }}">{{ section.title }}</a>
+                        <a class="nav-link text-light" href="{{ url_for('views.view_course', course_id=course['ID'], page_id=section['PageID']) }}">{{ section['Title'] }}</a>
                     </li>
                     {% endfor %}
                 </ul>
+                <div class="d-flex">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a href="{{ url_for('views.search_course', course_id=course['ID']) }}" class="btn btn-success">
+                                Search Course
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
+    </section>
 
     {% block course_content %}{% endblock %}
 </div>
@@ -50,8 +57,7 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id: {{ current_user.id }},
-                course_id: {{ course.id }}
+                course_id: {{ course['ID'] }}
             })
         })
         .then(response => { if (response.ok) { location.reload(); } else { alert("Could not join course."); } });

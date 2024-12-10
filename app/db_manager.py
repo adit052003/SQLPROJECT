@@ -1,6 +1,7 @@
 from flask import g
 import flask
 import pymysql
+import pymysql.cursors
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -9,7 +10,8 @@ def get_db():
             host = flask.current_app.config['MYSQL_HOST'],
             user = flask.current_app.config['MYSQL_USER'],
             password = flask.current_app.config['MYSQL_PASSWORD'],
-            db = flask.current_app.config['MYSQL_DB']
+            db = flask.current_app.config['MYSQL_DB'],
+            cursorclass=pymysql.cursors.DictCursor
         )
     return db
 
@@ -30,15 +32,6 @@ def fetchall(sql, args=()):
     with get_db().cursor() as cursor:
         cursor.execute(sql, args)
         return cursor.fetchall()
-
-def fetchall(sql, args=None, as_dict=True):
-    with get_db().cursor() as cursor:
-        cursor.execute(sql, args)
-        if as_dict:
-            column_names = [desc[0] for desc in cursor.description]
-            return [dict(zip(column_names, row)) for row in cursor.fetchall()]
-        else:
-            return cursor.fetchall()
 
 
 

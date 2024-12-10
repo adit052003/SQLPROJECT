@@ -1,6 +1,5 @@
 let courses = null;
 
-
 function getCourses() {
     return fetch('/api/course_list', {
         method: 'POST',
@@ -9,10 +8,7 @@ function getCourses() {
         },
         body: JSON.stringify({})
     })
-    .then(response => response.json())
-    .then(data => {
-        return data.courses;
-    });
+    .then(response => response.json());
 }
 
 function listCourses(courses) {
@@ -24,33 +20,32 @@ function listCourses(courses) {
 }
 
 function generateCourseElement(course) {
-    const img_url = course.img_url ?? "https://placehold.co/600x400?text=No+Image";
+    const img_url = course['ImageURL'] ?? "https://placehold.co/600x400?text=No+Image";
     const template = document.createElement('template');
     template.innerHTML = `
     <div class="col">
-        <a href="/course/${course.id}">
+        <a href="/course/${course['ID']}">
         <div class="card h-100 course-card">
             <img class="course-img" src="${img_url}" alt="Course image">
             
             <!-- Number of registered users -->
             <span class="img-text" style="top: 10px; left: 10px; border-radius: 3px;">
-                ${course.registrations}
+                ${course['Registrations']}
             </span>
             
-            ${course.rating == null ? "" : `
-            <!-- Rating in the top-right corner -->
+            ${course['Rating'] == null ? "" : `
             <span class="img-text" style="top: 10px; right: 10px; border-radius: 3px;">
-                ${course.rating / 2} ⭐
-            </span>`
-            }
+                ${course['Rating'] / 2} ⭐
+            </span>
+            `}
             
             <!-- Title at the bottom over the image -->
             <div class="img-text bottom-0 start-0 end-0">
                 <p class="m-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    ${course.title}
+                    ${course['Title']}
                 </p>
                 <p class="m-0" style="font-size: 0.70rem;">
-                    ${course.code}
+                    ${course['Code']}
                 </p>
             </div>
         </div>
@@ -67,8 +62,8 @@ function filterCourses() {
     const input = searchBar.value.toLowerCase();
     const filteredCourses = courses.filter(
         course => (
-            course.title.toLowerCase().includes(input) ||
-            course.code.toLowerCase().includes(input)
+            course['Title'].toLowerCase().includes(input) ||
+            course['Code'].toLowerCase().includes(input)
         )
     );
     listCourses(filteredCourses);
