@@ -9,22 +9,12 @@ def get_course(course_id):
     return fetchone(sql, course_id)
 
 def get_courses_full_details():
-    sql = """
-    SELECT C.ID, C.Title, Code, Description, ImageID, Rating, IFNULL(Registrations, 0) AS Registrations FROM Courses C
-    LEFT JOIN (
-        SELECT CourseID, AVG(Rating) AS Rating
-        FROM CourseRatings
-        GROUP BY CourseID
-    ) R ON R.CourseID = C.ID
-    LEFT JOIN (
-        SELECT CourseID, COUNT(*) AS Registrations
-        FROM JoinedCourses
-        GROUP BY CourseID
-    ) J ON J.CourseID = C.ID
-    """
+    sql = "SELECT * FROM CoursesFullDetails"
     courses = fetchall(sql)
-    for course in courses: course['ImageURL'] = f'/files/{course["ImageID"]}' if course["ImageID"] else None
+    for course in courses:
+        course['ImageURL'] = f'/files/{course["ImageID"]}' if course["ImageID"] else None
     return courses
+
 
 def get_rating(course_id):
     sql = '''SELECT AVG(Rating) AS Rating From CourseRatings WHERE CourseID = %s'''
@@ -61,21 +51,17 @@ def get_course_sessions(course_id):
     return sessions
     
 def get_course_sessions_full_details(course_id):
-    sql = '''
-    SELECT 
-    S.ID, CourseID, StartDate, EndDate, Classroom, Time, Title, Description, 
-    FirstName, LastName, AVG(R.Rating) AS Rating
-    FROM Sessions S
-    JOIN Professors P ON S.ProfessorID = P.ID
-    JOIN SessionRatings R ON S.ID = R.SessionID
+    sql = """
+    SELECT * 
+    FROM SessionsFullDetails 
     WHERE CourseID = %s
-    GROUP BY S.ID
-    '''
-    sessions = fetchall(sql, course_id)
+    """
+    sessions = fetchall(sql, (course_id,))
     for session in sessions:
         session['StartDate'] = f"{session['StartDate'].year}-{session['StartDate'].month:02}-{session['StartDate'].day:02}"
         session['EndDate'] = f"{session['EndDate'].year}-{session['EndDate'].month:02}-{session['EndDate'].day:02}"
     return sessions
+
 
 def add_session(course_id, title, professor_id, start_date, end_date, classroom, time, description):
     executeCommit(
@@ -126,15 +112,18 @@ def get_participant_count(course_id):
 
 def get_joined_courses(user_id):
     sql = """
-    SELECT C.ID, C.Title, C.Code, C.ImageID, J.JoinDate, J.ViewDate
-    FROM JoinedCourses J
-    JOIN Courses C ON J.CourseID = C.ID
-    WHERE J.UserID = %s
-    ORDER BY J.ViewDate DESC
+    SELECT CourseID AS ID, Title, Code, Description, ImageID, JoinDate, ViewDate
+    FROM JoinedCoursesView
+    WHERE UserID = %s
+    ORDER BY ViewDate DESC
     """
-    courses = fetchall(sql, user_id)
-    for course in courses: course['ImageURL'] = f'/files/{course["ImageID"]}' if course["ImageID"] else None
+    # Use the view to fetch data
+    courses = fetchall(sql, (user_id,))
+    for course in courses:
+        # Add dynamic ImageURL for each course
+        course['ImageURL'] = f'/files/{course["ImageID"]}' if course["ImageID"] else None
     return courses
+
 
 def update_view_date(course_id, user_id):
     executeCommit("UPDATE JoinedCourses SET ViewDate = now() WHERE CourseID=%s AND UserID=%s", (course_id, user_id))

@@ -115,6 +115,56 @@ CREATE TABLE CourseSections(
         ON DELETE CASCADE
 );
 
+CREATE OR REPLACE VIEW CoursesFullDetails AS
+SELECT 
+    C.ID, 
+    C.Title, 
+    C.Code, 
+    C.Description, 
+    C.ImageID, 
+    IFNULL(AVG(R.Rating), 0) AS Rating, 
+    IFNULL(COUNT(J.UserID), 0) AS Registrations
+FROM Courses C
+LEFT JOIN CourseRatings R ON C.ID = R.CourseID
+LEFT JOIN JoinedCourses J ON C.ID = J.CourseID
+GROUP BY C.ID;
+
+
+CREATE OR REPLACE VIEW JoinedCoursesView AS
+SELECT 
+    C.ID AS CourseID, 
+    C.Title, 
+    C.Code, 
+    C.Description, 
+    C.ImageID, 
+    J.UserID, 
+    J.JoinDate, 
+    J.ViewDate
+FROM JoinedCourses J
+JOIN Courses C ON J.CourseID = C.ID;
+
+CREATE OR REPLACE VIEW SessionsFullDetails AS
+SELECT 
+    S.ID AS SessionID, 
+    S.CourseID, 
+    S.StartDate, 
+    S.EndDate, 
+    S.Classroom, 
+    S.Time, 
+    S.Title, 
+    S.Description, 
+    P.FirstName, 
+    P.LastName, 
+    IFNULL(AVG(R.Rating), 0) AS Rating
+FROM Sessions S
+JOIN Professors P ON S.ProfessorID = P.ID
+LEFT JOIN SessionRatings R ON S.ID = R.SessionID
+GROUP BY S.ID;
+
+
+
+
+
 -- Sample Data
 
 -- A user with email `test@gmail.com` and password `test`
